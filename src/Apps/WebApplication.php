@@ -16,25 +16,28 @@ use Slim\Http\Request;
 use Slim\Http\Response;
 use Webmozart\PathUtil\Path;
 
+/**
+ * Class WebApplication
+ * @package Leadvertex\External\Export\Core\Apps
+ *
+ * @property string $runtimeDir
+ * @property string $outputDir
+ * @property string $consolePath
+ */
 class WebApplication extends App
 {
 
-    /** @var string */
-    private $runtimeDir;
-
-    /** @var string */
-    private $outputDir;
-
-    public function __construct(string $runtimeDir, string $outputDir, bool $debug = false
-    )
+    public function __construct(string $runtimeDir, string $outputDir, string $consolePath, bool $debug = false)
     {
-        $this->runtimeDir = $runtimeDir;
-        $this->outputDir = $outputDir;
-
-        $container['settings']['displayErrorDetails'] = $debug;
-        $container['settings']['addContentLengthHeader'] = true;
-
-        parent::__construct($container);
+        parent::__construct([
+            'settings' => [
+                'displayErrorDetails' => $debug,
+                'addContentLengthHeader' => true,
+            ],
+            'runtimeDir' => $runtimeDir,
+            'outputDir' => $outputDir,
+            'consolePath' => $consolePath,
+        ]);
 
         $this->rpc('CONFIG', function (Request $request, Response $response, $args) {
             $format = $args['formatter'];
@@ -103,12 +106,11 @@ class WebApplication extends App
                 new ChunkedIds($request->getParsedBodyParam('ids'))
             );
 
-            $tokensDir = Path::canonicalize(__DIR__ . '/../runtime/tokens');
+            $tokensDir = Path::canonicalize("{$this->runtimeDir}/tokens");
             $handler = new DeferredRunner($tokensDir);
             $handler->prepend($formatter, $params);
 
-            $script = Path::canonicalize(__DIR__ . '/../console.php');
-            $command = "php {$script} app:background {$batchToken}";;
+            $command = "php {$this->consolePath} app:background {$batchToken}";
 
             $isWindowsOS = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
             if ($isWindowsOS) {

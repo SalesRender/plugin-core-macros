@@ -36,7 +36,7 @@ class Type
 
     private function guardType(string $type)
     {
-        $types = [];
+        $types = [self::ORDERS];
         if (!in_array($type, $types)) {
             throw new InvalidArgumentException("Invalid type '{$type}'. Should be one of [" . implode(', ', $types) . "]");
         }
