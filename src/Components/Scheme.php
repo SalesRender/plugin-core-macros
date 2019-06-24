@@ -1,6 +1,6 @@
 <?php
 /**
- * Created for lv-exports.
+ * Created for lv-export-core
  * Datetime: 02.07.2018 16:59
  * @author Timur Kasumov aka XAKEPEHOK
  */
@@ -14,19 +14,29 @@ use TypeError;
 class Scheme
 {
 
+    /** @var string[]  */
     protected $names = [];
+
+    /** @var string[]  */
     protected $descriptions = [];
+
+    /** @var FieldDefinition[] */
     protected $fields = [];
+
+    /** @var Type */
+    private $type;
 
     /**
      * ConfigDefinition constructor.
+     * @param Type $type
      * @param string[] $names . Export name in different languages. If array, first value are default if language
      * undefined. For example array('en' => 'Organization name', 'ru' => 'Название организации') - default en.
      * @param string[] $descriptions . Export description in different languages. Same behavior, as $names
      * @param FieldDefinition[] $fieldDefinitions
      */
-    public function __construct(array $names, array $descriptions, array $fieldDefinitions)
+    public function __construct(Type $type, array $names, array $descriptions, array $fieldDefinitions)
     {
+        $this->type = $type;
         $this->names = $names;
         $this->descriptions = $descriptions;
 
@@ -39,23 +49,29 @@ class Scheme
     }
 
     /**
+     * @return Type
+     */
+    public function getType(): Type
+    {
+        return $this->type;
+    }
+
+    /**
      * Return property name in passed language. If passed language was not defined, will return name in default language
-     * @param string $language
      * @return string
      */
-    public function getName(string $language): string
+    public function getName(): string
     {
-        return $this->getTranslation($this->names, $language);
+        return $this->names;
     }
 
     /**
      * Return property description in passed language. If passed language was not defined, will return description in default language
-     * @param string $language
      * @return string
      */
-    public function getDescription(string $language): string
+    public function getDescription(): string
     {
-        return $this->getTranslation($this->descriptions, $language);
+        return $this->descriptions;
     }
 
     /**
@@ -81,6 +97,7 @@ class Scheme
     public function toArray(): array
     {
         $array = [
+            'type' => $this->type->get(),
             'name' => $this->names,
             'description' => $this->descriptions,
             'fields' => [],
@@ -91,14 +108,6 @@ class Scheme
         }
 
         return $array;
-    }
-
-    protected function getTranslation(array $array, string $language): string
-    {
-        if (isset($array[$language])) {
-            return $array[$language];
-        }
-        return reset($array);
     }
 
 }
