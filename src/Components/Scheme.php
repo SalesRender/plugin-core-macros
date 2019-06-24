@@ -5,10 +5,10 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\External\Export\App;
+namespace Leadvertex\External\Export\Core\Components;
 
 
-use Leadvertex\External\Export\App\FieldDefinitions\FieldDefinition;
+use Leadvertex\External\Export\Core\FieldDefinitions\FieldDefinition;
 use TypeError;
 
 class Scheme

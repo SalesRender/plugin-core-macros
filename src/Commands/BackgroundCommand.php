@@ -5,10 +5,10 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\External\Export\App\Commands;
+namespace Leadvertex\External\Export\Core\Commands;
 
 
-use Leadvertex\External\Export\App\Components\DeferredRunner;
+use Leadvertex\External\Export\Core\Components\DeferredRunner;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,6 +17,22 @@ use Webmozart\PathUtil\Path;
 
 class BackgroundCommand extends Command
 {
+
+    /**
+     * @var string
+     */
+    private $runtimeDir;
+    /**
+     * @var string
+     */
+    private $outputDir;
+
+    public function __construct(string $runtimeDir, string $outputDir)
+    {
+        parent::__construct();
+        $this->runtimeDir = $runtimeDir;
+        $this->outputDir = $outputDir;
+    }
 
     protected function configure()
     {
@@ -28,7 +44,7 @@ class BackgroundCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $tokensDir = Path::canonicalize(__DIR__ . '/../../runtime/tokens');
+        $tokensDir = Path::canonicalize("{$this->runtimeDir}/tokens");
         $handler = new DeferredRunner($tokensDir);
         $handler->run($input->getArgument('token'));
     }

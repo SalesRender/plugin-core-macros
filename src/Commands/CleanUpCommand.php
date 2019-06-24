@@ -5,7 +5,7 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\External\Export\App\Commands;
+namespace Leadvertex\External\Export\Core\Commands;
 
 
 use RecursiveDirectoryIterator;
@@ -14,10 +14,25 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\PathUtil\Path;
 
 class CleanUpCommand extends Command
 {
+
+    /**
+     * @var string
+     */
+    private $runtimeDir;
+    /**
+     * @var string
+     */
+    private $outputDir;
+
+    public function __construct(string $runtimeDir, string $outputDir)
+    {
+        parent::__construct();
+        $this->runtimeDir = $runtimeDir;
+        $this->outputDir = $outputDir;
+    }
 
     protected function configure()
     {
@@ -31,14 +46,14 @@ class CleanUpCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->cleanUp(
-            Path::canonicalize(__DIR__ . '/../../runtime'),
+            $this->runtimeDir,
             $input->getArgument('hours'),
             ['.gitignore'],
             $output
         );
 
         $this->cleanUp(
-            Path::canonicalize(  __DIR__ . '/../../web/compiled'),
+            $this->outputDir,
             $input->getArgument('hours'),
             ['.gitignore'],
             $output

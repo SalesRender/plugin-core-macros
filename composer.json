@@ -12,7 +12,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "Leadvertex\\External\\Export\\App\\": "src/",
+      "Leadvertex\\External\\Export\\Core\\": "src/",
       "Leadvertex\\External\\Export\\Format\\": "formats/"
     }
   },

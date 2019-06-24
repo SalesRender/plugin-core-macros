@@ -4,13 +4,13 @@
  * Datetime: 20.06.2019 17:43
  */
 
-namespace Leadvertex\External\Export\Format;
+namespace Leadvertex\External\Export\Core;
 
 
-use Leadvertex\External\Export\App\Components\ApiParams;
-use Leadvertex\External\Export\App\Components\GenerateParams;
-use Leadvertex\External\Export\App\Components\StoredConfig;
-use Leadvertex\External\Export\App\Scheme;
+use Leadvertex\External\Export\Core\Components\ApiParams;
+use Leadvertex\External\Export\Core\Components\GenerateParams;
+use Leadvertex\External\Export\Core\Components\StoredConfig;
+use Leadvertex\External\Export\Core\Components\Scheme;
 
 interface FormatterInterface
 {

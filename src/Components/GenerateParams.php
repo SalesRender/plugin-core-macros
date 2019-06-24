@@ -4,7 +4,7 @@
  * Datetime: 20.06.2019 17:47
  */
 
-namespace Leadvertex\External\Export\App\Components;
+namespace Leadvertex\External\Export\Core\Components;
 
 
 class GenerateParams

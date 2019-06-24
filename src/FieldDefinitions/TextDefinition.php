@@ -5,7 +5,7 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\External\Export\App\FieldDefinitions;
+namespace Leadvertex\External\Export\Core\FieldDefinitions;
 
 
 class TextDefinition extends FieldDefinition

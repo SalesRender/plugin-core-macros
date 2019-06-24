@@ -4,10 +4,10 @@
  * Datetime: 21.06.2019 22:22
  */
 
-namespace Leadvertex\External\Export\App\Components;
+namespace Leadvertex\External\Export\Core\Components;
 
 
-use Leadvertex\External\Export\Format\FormatterInterface;
+use Leadvertex\External\Export\Core\FormatterInterface;
 use Webmozart\PathUtil\Path;
 
 class DeferredRunner
