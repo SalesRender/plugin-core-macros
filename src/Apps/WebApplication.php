@@ -23,8 +23,9 @@ use Webmozart\PathUtil\Path;
  *
  * @property bool $debugMode
  * @property string $runtimeDir
- * @property string $outputDir
- * @property string $consolePath
+ * @property string $publicDir
+ * @property string $publicUrl
+ * @property string $consoleScript
  */
 class WebApplication extends App
 {
@@ -32,11 +33,18 @@ class WebApplication extends App
     /**
      * WebApplication constructor.
      * @param string $runtimeDir
-     * @param string $outputDir
-     * @param string $consolePath
+     * @param string $publicDir
+     * @param string $publicUrl
+     * @param string $consoleScript
      * @param bool $debug //DO NOT USE IN PRODUCTION! It run generation at http request, not by background console task
      */
-    public function __construct(string $runtimeDir, string $outputDir, string $consolePath, bool $debug = false)
+    public function __construct(
+        string $runtimeDir,
+        string $publicDir,
+        string $publicUrl,
+        string $consoleScript,
+        bool $debug = false
+    )
     {
         parent::__construct([
             'settings' => [
@@ -45,8 +53,9 @@ class WebApplication extends App
             ],
             'debugMode' => $debug,
             'runtimeDir' => $runtimeDir,
-            'outputDir' => $outputDir,
-            'consolePath' => $consolePath,
+            'publicDir' => $publicDir,
+            'publicUrl' => $publicUrl,
+            'consoleScript' => $consoleScript,
         ]);
 
         $this->rpc('CONFIG', function (Request $request, Response $response, $args) {
@@ -59,7 +68,7 @@ class WebApplication extends App
 
             $classname = "\Leadvertex\External\Export\Format\\{$format}\\{$format}";
             /** @var FormatterInterface $formatter */
-            $formatter = new $classname($apiParams, $this->runtimeDir, $this->outputDir);
+            $formatter = new $classname($apiParams, $this->runtimeDir, $this->publicDir, $this->publicUrl);
             return $response->withJson(
                 $formatter->getScheme()->toArray(),
                 200
@@ -80,7 +89,7 @@ class WebApplication extends App
 
             $classname = "\Leadvertex\External\Export\Format\\{$formatter}\\{$formatter}";
             /** @var FormatterInterface $formatter */
-            $formatter = new $classname($apiParams, $this->runtimeDir, $this->outputDir);
+            $formatter = new $classname($apiParams, $this->runtimeDir, $this->publicDir, $this->publicUrl);
 
             $type = new Type($request->getParsedBodyParam('type'));
 
@@ -107,7 +116,8 @@ class WebApplication extends App
                     $request->getParsedBodyParam('api')['endpointUrl']
                 ),
                 $this->runtimeDir,
-                $this->outputDir
+                $this->publicDir,
+                $this->publicUrl
             );
 
             $batchToken = $request->getParsedBodyParam('batch')['token'];
@@ -131,7 +141,7 @@ class WebApplication extends App
             $handler = new DeferredRunner($tokensDir);
             $handler->prepend($formatter, $params);
 
-            $command = "php {$this->consolePath} app:background {$batchToken}";
+            $command = "php {$this->consoleScript} app:background {$batchToken}";
 
             $isWindowsOS = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
             if ($isWindowsOS) {

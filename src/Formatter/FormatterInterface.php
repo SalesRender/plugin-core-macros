@@ -16,7 +16,7 @@ use Leadvertex\External\Export\Core\Components\WebhookManager;
 interface FormatterInterface
 {
 
-    public function __construct(ApiParams $apiParams, string $runtimeDir, string $outputDir);
+    public function __construct(ApiParams $apiParams, string $runtimeDir, string $publicDir, string $publicUrl);
 
     public function getScheme(): Scheme;
 
