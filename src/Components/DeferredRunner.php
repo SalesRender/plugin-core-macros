@@ -7,7 +7,10 @@
 namespace Leadvertex\External\Export\Core\Components;
 
 
-use Leadvertex\External\Export\Core\FormatterInterface;
+use Exception;
+use Leadvertex\External\Export\Core\Components\BatchResult\BatchResultFailed;
+use Leadvertex\External\Export\Core\Exceptions\MismatchTypeException;
+use Leadvertex\External\Export\Core\Formatter\FormatterInterface;
 use Webmozart\PathUtil\Path;
 
 class DeferredRunner
@@ -46,7 +49,12 @@ class DeferredRunner
         $params = unserialize(base64_decode($data['params']));
 
         try {
+            $this->guardType($formatter, $params);
             $formatter->generate($params);
+        } catch (Exception $exception) {
+            $manager = new WebhookManager($params->getBatchParams());
+            $manager->result(new BatchResultFailed($exception->getMessage()));
+            throw $exception;
         } finally {
             unlink($filePath);
         }
@@ -60,6 +68,18 @@ class DeferredRunner
         }
         $path = Path::canonicalize("{$dir}/{$token}.json");
         return $path;
+    }
+
+    /**
+     * @param FormatterInterface $formatter
+     * @param GenerateParams $params
+     * @throws MismatchTypeException
+     */
+    private function guardType(FormatterInterface $formatter, GenerateParams $params)
+    {
+        if (!$formatter->getScheme()->getType()->isEquals($params->getType())) {
+            throw new MismatchTypeException('');
+        }
     }
 
 }

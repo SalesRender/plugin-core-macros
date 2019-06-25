@@ -5,7 +5,7 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\External\Export\Core\Components;
+namespace Leadvertex\External\Export\Core\Formatter;
 
 
 use InvalidArgumentException;
@@ -13,7 +13,7 @@ use InvalidArgumentException;
 class Type
 {
 
-    const ORDERS = 'orders';
+    const ORDERS = 'ORDERS';
 
     /**
      * @var string
@@ -32,6 +32,11 @@ class Type
     public function get(): string
     {
         return $this->type;
+    }
+
+    public function isEquals(self $type): bool
+    {
+        return $type->get() === $this->get();
     }
 
     private function guardType(string $type)
