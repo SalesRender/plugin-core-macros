@@ -17,33 +17,21 @@ class BatchParams
     /**
      * @var string
      */
-    private $successWebhookUrl;
-    /**
-     * @var string
-     */
-    private $failsWebhookUrl;
+    private $progressWebhookUrl;
     /**
      * @var string
      */
     private $resultWebhookUrl;
-    /**
-     * @var string
-     */
-    private $errorWebhookUrl;
 
     public function __construct(
         string $token,
-        string $successWebhookUrl,
-        string $failsWebhookUrl,
-        string $resultWebhookUrl,
-        string $errorWebhookUrl
+        string $progressWebhookUrl,
+        string $resultWebhookUrl
     )
     {
         $this->token = $token;
-        $this->successWebhookUrl = $successWebhookUrl;
-        $this->failsWebhookUrl = $failsWebhookUrl;
+        $this->progressWebhookUrl = $progressWebhookUrl;
         $this->resultWebhookUrl = $resultWebhookUrl;
-        $this->errorWebhookUrl = $errorWebhookUrl;
     }
 
     /**
@@ -57,17 +45,9 @@ class BatchParams
     /**
      * @return string
      */
-    public function getSuccessWebhookUrl(): string
+    public function getProgressWebhookUrl(): string
     {
-        return $this->successWebhookUrl;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFailsWebhookUrl(): string
-    {
-        return $this->failsWebhookUrl;
+        return $this->progressWebhookUrl;
     }
 
     /**
@@ -76,14 +56,6 @@ class BatchParams
     public function getResultWebhookUrl(): string
     {
         return $this->resultWebhookUrl;
-    }
-
-    /**
-     * @return string
-     */
-    public function getErrorWebhookUrl(): string
-    {
-        return $this->errorWebhookUrl;
     }
 
 }

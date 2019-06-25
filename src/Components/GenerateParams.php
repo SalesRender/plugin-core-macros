@@ -7,8 +7,14 @@
 namespace Leadvertex\External\Export\Core\Components;
 
 
+use Leadvertex\External\Export\Core\Formatter\Type;
+
 class GenerateParams
 {
+    /**
+     * @var Type
+     */
+    private $type;
     /**
      * @var StoredConfig
      */
@@ -23,14 +29,24 @@ class GenerateParams
     private $chunkedIds;
 
     public function __construct(
+        Type $type,
         StoredConfig $config,
         BatchParams $batchParams,
         ChunkedIds $chunkedIds
     )
     {
+        $this->type = $type;
         $this->config = $config;
         $this->batchParams = $batchParams;
         $this->chunkedIds = $chunkedIds;
+    }
+
+    /**
+     * @return Type
+     */
+    public function getType(): Type
+    {
+        return $this->type;
     }
 
     /**

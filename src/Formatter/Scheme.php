@@ -5,14 +5,18 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\External\Export\Core\Components;
+namespace Leadvertex\External\Export\Core\Formatter;
 
 
+use Leadvertex\External\Export\Core\Components\Developer;
 use Leadvertex\External\Export\Core\FieldDefinitions\FieldDefinition;
 use TypeError;
 
 class Scheme
 {
+
+    /** @var Type */
+    private $type;
 
     /** @var string[]  */
     protected $names = [];
@@ -23,19 +27,21 @@ class Scheme
     /** @var FieldDefinition[] */
     protected $fields = [];
 
-    /** @var Type */
-    private $type;
+    /** @var Developer */
+    private $developer;
 
     /**
      * ConfigDefinition constructor.
+     * @param Developer $developer
      * @param Type $type
      * @param string[] $names . Export name in different languages. If array, first value are default if language
      * undefined. For example array('en' => 'Organization name', 'ru' => 'Название организации') - default en.
      * @param string[] $descriptions . Export description in different languages. Same behavior, as $names
      * @param FieldDefinition[] $fieldDefinitions
      */
-    public function __construct(Type $type, array $names, array $descriptions, array $fieldDefinitions)
+    public function __construct(Developer $developer, Type $type, array $names, array $descriptions, array $fieldDefinitions)
     {
+        $this->developer = $developer;
         $this->type = $type;
         $this->names = $names;
         $this->descriptions = $descriptions;
@@ -46,6 +52,14 @@ class Scheme
             }
             $this->fields[$fieldName] = $fieldDefinition;
         }
+    }
+
+    /**
+     * @return Developer
+     */
+    public function getDeveloper(): Developer
+    {
+        return $this->developer;
     }
 
     /**

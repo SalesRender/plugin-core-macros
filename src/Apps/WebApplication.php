@@ -10,7 +10,8 @@ use Leadvertex\External\Export\Core\Components\ChunkedIds;
 use Leadvertex\External\Export\Core\Components\DeferredRunner;
 use Leadvertex\External\Export\Core\Components\GenerateParams;
 use Leadvertex\External\Export\Core\Components\StoredConfig;
-use Leadvertex\External\Export\Core\FormatterInterface;
+use Leadvertex\External\Export\Core\Formatter\Type;
+use Leadvertex\External\Export\Core\Formatter\FormatterInterface;
 use Slim\App;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -71,11 +72,18 @@ class WebApplication extends App
             $classname = "\Leadvertex\External\Export\Format\\{$formatter}\\{$formatter}";
             /** @var FormatterInterface $formatter */
             $formatter = new $classname($apiParams, $this->runtimeDir, $this->outputDir);
-            if ($formatter->isConfigValid($config)) {
-                return $response->withJson(['valid' => true],200);
-            } else {
+
+            $type = new Type($request->getParsedBodyParam('type'));
+
+            if (!$type->isEquals($formatter->getScheme()->getType())) {
+                return $response->withJson(['valid' => false],405);
+            }
+
+            if (!$formatter->isConfigValid($config)) {
                 return $response->withJson(['valid' => false],400);
             }
+
+            return $response->withJson(['valid' => true],200);
         });
 
         $this->rpc('GENERATE', function (Request $request, Response $response, $args) {
@@ -95,13 +103,12 @@ class WebApplication extends App
 
             $batchToken = $request->getParsedBodyParam('batch')['token'];
             $params = new GenerateParams(
+                new Type($request->getParsedBodyParam('type')),
                 new StoredConfig($request->getParsedBodyParam('config')),
                 new BatchParams(
                     $batchToken,
-                    $request->getParsedBodyParam('batch')['successWebhookUrl'],
-                    $request->getParsedBodyParam('batch')['failsWebhookUrl'],
-                    $request->getParsedBodyParam('batch')['resultWebhookUrl'],
-                    $request->getParsedBodyParam('batch')['errorWebhookUrl']
+                    $request->getParsedBodyParam('batch')['progressWebhookUrl'],
+                    $request->getParsedBodyParam('batch')['resultWebhookUrl']
                 ),
                 new ChunkedIds($request->getParsedBodyParam('ids'))
             );
