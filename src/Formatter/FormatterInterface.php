@@ -11,6 +11,7 @@ use Leadvertex\External\Export\Core\Components\ApiParams;
 use Leadvertex\External\Export\Core\Components\BatchResult\BatchResultInterface;
 use Leadvertex\External\Export\Core\Components\GenerateParams;
 use Leadvertex\External\Export\Core\Components\StoredConfig;
+use Leadvertex\External\Export\Core\Components\WebhookManager;
 
 interface FormatterInterface
 {
@@ -25,15 +26,17 @@ interface FormatterInterface
 
     /**
      * Should be called after every chunk handled (not every id, chunk only)
+     * @param WebhookManager $manager
      * @param array $ids
      * @return mixed
      */
-    public function sendProgress(array $ids);
+    public function sendProgress(WebhookManager $manager, array $ids);
 
     /**
+     * @param WebhookManager $manager
      * @param BatchResultInterface $batchResult
      * @return mixed
      */
-    public function sendResult(BatchResultInterface $batchResult);
+    public function sendResult(WebhookManager $manager, BatchResultInterface $batchResult);
 
 }
