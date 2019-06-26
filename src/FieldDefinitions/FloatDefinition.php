@@ -31,7 +31,6 @@ class FloatDefinition extends FieldDefinition
      */
     public function validateValue($value): bool
     {
-        $strValue = (string) (float) $value;
-        return $this->required === false || strlen($strValue) > 0;
+        return $this->required === false || is_float($value);
     }
 }

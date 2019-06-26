@@ -45,7 +45,7 @@ class ArrayDefinition extends FieldDefinition
     /**
      * @return array
      */
-    public function getEnum()
+    public function getEnum(): array
     {
         return $this->enum;
     }

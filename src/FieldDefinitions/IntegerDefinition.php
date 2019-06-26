@@ -31,7 +31,6 @@ class IntegerDefinition extends FieldDefinition
      */
     public function validateValue($value): bool
     {
-        $strValue = (string) (int) $value;
-        return $this->required === false || strlen($strValue) > 0;
+        return $this->required === false || is_int($value);
     }
 }

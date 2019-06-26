@@ -18,9 +18,9 @@ abstract class FieldDefinition
 
     /**
      * ConfigDefinition constructor.
-     * @param string[] $names. Property name in different languages. If array, first value are default if language
+     * @param string[] $names . Property name in different languages. If array, first value are default if language
      * undefined. For example array('en' => 'Organization name', 'ru' => 'Название организации') - default en.
-     * @param string[] $descriptions. Property description in different languages. Same behavior, as $names
+     * @param string[] $descriptions . Property description in different languages. Same behavior, as $names
      * @param string|int|float|bool|array|null $default value
      * @param bool $required is this field required
      */

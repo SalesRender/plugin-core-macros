@@ -72,18 +72,18 @@ class Scheme
 
     /**
      * Return property name in passed language. If passed language was not defined, will return name in default language
-     * @return string
+     * @return array
      */
-    public function getName(): string
+    public function getNames(): array
     {
         return $this->names;
     }
 
     /**
      * Return property description in passed language. If passed language was not defined, will return description in default language
-     * @return string
+     * @return array
      */
-    public function getDescription(): string
+    public function getDescriptions(): array
     {
         return $this->descriptions;
     }

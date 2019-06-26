@@ -33,7 +33,7 @@ class Developer
      * @param string $name of company or developer
      * @param string $email of support this export
      * @param string $hostname hostname of this export (e.g. example.com)
-     * @param string|null $sign string, provided by leadvertex.com for developer verification (not required)
+     * @param string $sign string, provided by leadvertex.com for developer verification (not required)
      */
     public function __construct(string $name, string $email, string $hostname, string $sign = null)
     {
@@ -75,6 +75,9 @@ class Developer
         return $this->sign;
     }
 
+    /**
+     * @return array
+     */
     public function toArray(): array
     {
         return [
