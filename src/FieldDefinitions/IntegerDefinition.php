@@ -8,13 +8,15 @@
 namespace Leadvertex\External\Export\Core\FieldDefinitions;
 
 
+use Leadvertex\External\Export\Core\Components\MultiLang;
+
 class IntegerDefinition extends FieldDefinition
 {
 
-    public function __construct(array $names, array $descriptions, $default, bool $required)
+    public function __construct(MultiLang $name, MultiLang $description, $default, bool $required)
     {
         $default = (int) $default;
-        parent::__construct($names, $descriptions, $default, $required);
+        parent::__construct($name, $description, $default, $required);
     }
 
     /**
@@ -31,6 +33,10 @@ class IntegerDefinition extends FieldDefinition
      */
     public function validateValue($value): bool
     {
-        return $this->required === false || is_int($value);
+        if ($this->isRequired() && is_null($value)) {
+            return false;
+        }
+
+        return is_int($value);
     }
 }

@@ -8,20 +8,35 @@
 namespace Leadvertex\External\Export\Core\FieldDefinitions;
 
 
+use Exception;
 use InvalidArgumentException;
+use Leadvertex\External\Export\Core\Components\MultiLang;
 
 class ArrayDefinition extends FieldDefinition
 {
 
     /**
-     * @var array
+     * @var MultiLang[]
      */
     protected $enum;
 
-    public function __construct(array $names, array $descriptions, $default, bool $required, array $enum = [])
+    /**
+     * ArrayDefinition constructor.
+     * @param MultiLang $name
+     * @param MultiLang $description
+     * @param MultiLang[] $enum witch represent value => caption dropdown in different languages
+     * array(
+     *  'jan' => new MultiLang('en' => 'January', 'ru' => 'Январь'),
+     *  'feb' => new MultiLang('en' => 'February', 'ru' => 'Февраль'),
+     * )
+     * @param $default
+     * @param bool $required
+     * @throws Exception
+     */
+    public function __construct(MultiLang $name, MultiLang $description, array $enum, $default, bool $required)
     {
-        parent::__construct($names, $descriptions, $default, $required);
-        $this->guardFlatArray($enum);
+        parent::__construct($name, $description, $default, $required);
+        MultiLang::guardLangArray($enum, new InvalidArgumentException('Invalid values array in ' . __CLASS__));
         $this->enum = array_values($enum);
     }
 
@@ -34,12 +49,29 @@ class ArrayDefinition extends FieldDefinition
     }
 
     /**
-     * @param array $value
+     * @param $array
      * @return bool
      */
-    public function validateValue($value): bool
+    public function validateValue($array): bool
     {
-        return $this->required === false || count($value) > 0;
+        $isEmpty = is_null($array) || (is_array($array) && empty($array));
+        if ($this->isRequired() && $isEmpty) {
+            return false;
+        }
+
+        $isFlatArray = is_array($array) && (count($array) !== count($array, COUNT_RECURSIVE));
+        if (!$isFlatArray) {
+            return false;
+        }
+
+        //Invalid values
+        foreach ($array as $value) {
+            if (!isset($this->enum[$value])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -53,14 +85,7 @@ class ArrayDefinition extends FieldDefinition
     public function toArray(): array
     {
         $array = parent::toArray();
-        $array['enum'] = $this->getEnum();
+        $array['enum'] = MultiLang::toArray($this->enum);
         return $array;
-    }
-
-    private function guardFlatArray($array)
-    {
-        if (count($array) !== count($array, COUNT_RECURSIVE)) {
-            throw new InvalidArgumentException('Array enum should be flat');
-        }
     }
 }

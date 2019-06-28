@@ -8,13 +8,15 @@
 namespace Leadvertex\External\Export\Core\FieldDefinitions;
 
 
+use Leadvertex\External\Export\Core\Components\MultiLang;
+
 class StringDefinition extends FieldDefinition
 {
 
-    public function __construct(array $names, array $descriptions, $default, bool $required)
+    public function __construct(MultiLang $name, MultiLang $description, $default, bool $required)
     {
         $default = (string) $default;
-        parent::__construct($names, $descriptions, $default, $required);
+        parent::__construct($name, $description, $default, $required);
     }
 
     /**
@@ -31,7 +33,7 @@ class StringDefinition extends FieldDefinition
      */
     public function validateValue($value): bool
     {
-        $value = trim($value);
+        $value = trim((string) $value);
         return $this->required === false || strlen($value) > 0;
     }
 }

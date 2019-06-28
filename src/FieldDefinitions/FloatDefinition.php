@@ -8,13 +8,15 @@
 namespace Leadvertex\External\Export\Core\FieldDefinitions;
 
 
+use Leadvertex\External\Export\Core\Components\MultiLang;
+
 class FloatDefinition extends FieldDefinition
 {
 
-    public function __construct(array $names, array $descriptions, $default, bool $required)
+    public function __construct(MultiLang $name, MultiLang $description, $default, bool $required)
     {
         $default = (float) $default;
-        parent::__construct($names, $descriptions, $default, $required);
+        parent::__construct($name, $description, $default, $required);
     }
 
     /**
@@ -26,11 +28,15 @@ class FloatDefinition extends FieldDefinition
     }
 
     /**
-     * @param float $value
+     * @param float|int $value
      * @return bool
      */
     public function validateValue($value): bool
     {
-        return $this->required === false || is_float($value);
+        if ($this->isRequired() && is_null($value)) {
+            return false;
+        }
+
+        return is_numeric($value);
     }
 }

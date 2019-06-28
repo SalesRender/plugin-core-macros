@@ -8,26 +8,29 @@
 namespace Leadvertex\External\Export\Core\FieldDefinitions;
 
 
+use Exception;
+use Leadvertex\External\Export\Core\Components\MultiLang;
+
 abstract class FieldDefinition
 {
 
-    protected $names = [];
-    protected $descriptions = [];
+    protected $name = [];
+    protected $description = [];
     protected $default;
     protected $required;
 
     /**
      * ConfigDefinition constructor.
-     * @param string[] $names . Property name in different languages. If array, first value are default if language
-     * undefined. For example array('en' => 'Organization name', 'ru' => 'Название организации') - default en.
-     * @param string[] $descriptions . Property description in different languages. Same behavior, as $names
+     * @param MultiLang $name
+     * @param MultiLang $description
      * @param string|int|float|bool|array|null $default value
      * @param bool $required is this field required
+     * @throws Exception
      */
-    public function __construct(array $names, array $descriptions, $default, bool $required)
+    public function __construct(MultiLang $name, MultiLang $description, $default, bool $required)
     {
-        $this->names = $names;
-        $this->descriptions = $descriptions;
+        $this->name = $name;
+        $this->description = $description;
         $this->default = $default;
         $this->required = $required;
     }
@@ -65,19 +68,11 @@ abstract class FieldDefinition
     {
         return [
             'definition' => $this->definition(),
-            'name' => $this->names,
-            'description' => $this->descriptions,
+            'name' => $this->name->getTranslations(),
+            'description' => $this->description->getTranslations(),
             'default' => $this->default,
             'required' => (bool) $this->required,
         ];
-    }
-
-    protected function getTranslation(array $array, string $language): string
-    {
-        if (isset($array[$language])) {
-            return $array[$language];
-        }
-        return reset($array);
     }
 
 }

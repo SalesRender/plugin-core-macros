@@ -25,7 +25,6 @@ class CheckboxDefinition extends FieldDefinition
      */
     public function validateValue($value): bool
     {
-        $value = (bool) $value;
-        return $this->required === false || $value === true;
+        return is_bool($value) && ($this->required === false || $value === true);
     }
 }

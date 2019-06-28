@@ -9,6 +9,7 @@ namespace Leadvertex\External\Export\Core\Formatter;
 
 
 use Leadvertex\External\Export\Core\Components\Developer;
+use Leadvertex\External\Export\Core\Components\MultiLang;
 use Leadvertex\External\Export\Core\FieldDefinitions\FieldDefinition;
 use TypeError;
 
@@ -18,11 +19,11 @@ class Scheme
     /** @var Type */
     private $type;
 
-    /** @var string[]  */
-    protected $names = [];
+    /** @var MultiLang  */
+    protected $name;
 
-    /** @var string[]  */
-    protected $descriptions = [];
+    /** @var MultiLang  */
+    protected $description;
 
     /** @var FieldDefinition[] */
     protected $fields = [];
@@ -30,21 +31,21 @@ class Scheme
     /** @var Developer */
     private $developer;
 
+
     /**
-     * ConfigDefinition constructor.
+     * Scheme constructor.
      * @param Developer $developer
      * @param Type $type
-     * @param string[] $names . Export name in different languages. If array, first value are default if language
-     * undefined. For example array('en' => 'Organization name', 'ru' => 'Название организации') - default en.
-     * @param string[] $descriptions . Export description in different languages. Same behavior, as $names
-     * @param FieldDefinition[] $fieldDefinitions
+     * @param MultiLang $name
+     * @param MultiLang $description
+     * @param array $fieldDefinitions
      */
-    public function __construct(Developer $developer, Type $type, array $names, array $descriptions, array $fieldDefinitions)
+    public function __construct(Developer $developer, Type $type, MultiLang $name, MultiLang $description, array $fieldDefinitions)
     {
         $this->developer = $developer;
         $this->type = $type;
-        $this->names = $names;
-        $this->descriptions = $descriptions;
+        $this->name = $name;
+        $this->description = $description;
 
         foreach ($fieldDefinitions as $fieldName => $fieldDefinition) {
             if (!$fieldDefinition instanceof FieldDefinition) {
@@ -72,20 +73,20 @@ class Scheme
 
     /**
      * Return property name in passed language. If passed language was not defined, will return name in default language
-     * @return array
+     * @return MultiLang
      */
-    public function getNames(): array
+    public function getName(): MultiLang
     {
-        return $this->names;
+        return $this->name;
     }
 
     /**
      * Return property description in passed language. If passed language was not defined, will return description in default language
-     * @return array
+     * @return MultiLang
      */
-    public function getDescriptions(): array
+    public function getDescription(): MultiLang
     {
-        return $this->descriptions;
+        return $this->description;
     }
 
     /**
@@ -113,8 +114,8 @@ class Scheme
         $array = [
             'developer' => $this->developer->toArray(),
             'type' => $this->type->get(),
-            'name' => $this->names,
-            'description' => $this->descriptions,
+            'name' => $this->name->getTranslations(),
+            'description' => $this->description->getTranslations(),
             'fields' => [],
         ];
 
