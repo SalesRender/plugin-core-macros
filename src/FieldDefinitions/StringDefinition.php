@@ -33,7 +33,15 @@ class StringDefinition extends FieldDefinition
      */
     public function validateValue($value): bool
     {
-        $value = trim((string) $value);
-        return $this->required === false || strlen($value) > 0;
+        if (is_string($value)) {
+            $value = trim($value);
+        }
+
+        $isEmpty = is_null($value) || (is_string($value) && empty($value));
+        if ($this->isRequired() && $isEmpty) {
+            return false;
+        }
+
+        return is_string($value);
     }
 }

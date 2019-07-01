@@ -37,7 +37,7 @@ class ArrayDefinition extends FieldDefinition
     {
         parent::__construct($name, $description, $default, $required);
         MultiLang::guardLangArray($enum, new InvalidArgumentException('Invalid values array in ' . __CLASS__));
-        $this->enum = array_values($enum);
+        $this->enum = $enum;
     }
 
     /**
@@ -60,7 +60,7 @@ class ArrayDefinition extends FieldDefinition
         }
 
         $isFlatArray = is_array($array) && (count($array) !== count($array, COUNT_RECURSIVE));
-        if (!$isFlatArray) {
+        if ($isFlatArray) {
             return false;
         }
 

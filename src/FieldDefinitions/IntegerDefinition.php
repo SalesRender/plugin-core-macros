@@ -33,8 +33,8 @@ class IntegerDefinition extends FieldDefinition
      */
     public function validateValue($value): bool
     {
-        if ($this->isRequired() && is_null($value)) {
-            return false;
+        if (!$this->isRequired() && is_null($value)) {
+            return true;
         }
 
         return is_int($value);
