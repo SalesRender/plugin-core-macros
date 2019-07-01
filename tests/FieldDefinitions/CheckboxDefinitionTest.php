@@ -3,6 +3,8 @@
 namespace Leadvertex\External\Export\Core\FieldDefinitions;
 
 
+use Exception;
+use Leadvertex\External\Export\Core\Components\MultiLang;
 use PHPUnit\Framework\TestCase;
 
 class CheckboxDefinitionTest extends TestCase
@@ -19,13 +21,16 @@ class CheckboxDefinitionTest extends TestCase
     /** @var bool */
     private $required;
 
+    /**
+     * @throws Exception
+     */
     public function setUp()
     {
         parent::setUp();
 
-        $this->names = ['Bob','Martin','Lesly'];
-        $this->description = ['lorem'];
-        $this->default = 'defaultValue';
+        $this->names = new MultiLang(array('en' => 'Organization name', 'ru' => 'Название организации'));
+        $this->description = new MultiLang(array('en' => 'Description', 'ru' => 'Описание'));
+        $this->default = 'Test value for default param';
         $this->required = true;
 
         $this->checkboxDefinition = new CheckboxDefinition(
@@ -42,10 +47,11 @@ class CheckboxDefinitionTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProvider
+     * @dataProvider dataProviderForValidate
      * @param bool $required
      * @param $value
      * @param bool $expected
+     * @throws Exception
      */
     public function testValidateValue(bool $required, $value, bool $expected)
     {
@@ -59,13 +65,21 @@ class CheckboxDefinitionTest extends TestCase
         $this->assertEquals($expected, $definition->validateValue($value));
     }
 
-    public function dataProvider()
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function dataProviderForValidate()
     {
         return [
-            [true, false, false],
-            [true, 'value', true],
-            [false, null, true],
-            [false, random_int(1,100), true],
+            ['required' => true, 'value' => false, 'expected' => false],
+            ['required' => true, 'value' => true, 'expected' => true],
+
+            ['required' => false, 'value' => false, 'expected' => true],
+            ['required' => false, 'value' => null, 'expected' => false],
+            ['required' => false, 'value' => random_int(1,100), 'expected' => false],
+            ['required' => false, 'value' => [], 'expected' => false],
+            ['required' => false, 'value' => 'string', 'expected' => false],
         ];
     }
 

@@ -3,13 +3,15 @@
 namespace Leadvertex\External\Export\Core\FieldDefinitions;
 
 
+use Exception;
+use Leadvertex\External\Export\Core\Components\MultiLang;
 use PHPUnit\Framework\TestCase;
 
 class TextDefinitionTest extends TestCase
 {
 
     /** @var array */
-    private $names;
+    private $name;
     /** @var array */
     private $descriptions;
     /** @var string */
@@ -19,17 +21,20 @@ class TextDefinitionTest extends TestCase
     /** @var TextDefinition */
     private $textDefinition;
 
+    /**
+     * @throws Exception
+     */
     public function setUp()
     {
         parent::setUp();
 
-        $this->names = [];
-        $this->descriptions = [];
-        $this->default = 'DefaultValue';
+        $this->name = new MultiLang(array('en' => 'Organization name', 'ru' => 'Название организации'));
+        $this->descriptions = new MultiLang(array('en' => 'Description', 'ru' => 'Описание'));
+        $this->default = 'Test value for default param';
         $this->required = true;
 
         $this->textDefinition = new TextDefinition(
-            $this->names,
+            $this->name,
             $this->descriptions,
             $this->default,
             $this->required
@@ -42,31 +47,4 @@ class TextDefinitionTest extends TestCase
         $this->assertEquals('text', $this->textDefinition->definition());
     }
 
-    /**
-     * @dataProvider dataProvider
-     * @param bool $required
-     * @param string $value
-     * @param bool $expected
-     */
-    public function testValidateValue(bool $required, string $value, bool $expected)
-    {
-        $textDefinition = new TextDefinition(
-            $this->names,
-            $this->descriptions,
-            $this->default,
-            $required
-        );
-
-        $this->assertEquals($expected, $textDefinition->validateValue($value));
-    }
-
-    public function dataProvider()
-    {
-        return [
-          [true, '   ', false],
-          [true, 'notEmpty', true],
-          [false, '   ', true],
-          [false, 'notEmpty', true],
-        ];
-    }
 }

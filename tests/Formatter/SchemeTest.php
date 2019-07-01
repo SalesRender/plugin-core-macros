@@ -3,7 +3,9 @@
 namespace Leadvertex\External\Export\Core\Formatter;
 
 
+use Exception;
 use Leadvertex\External\Export\Core\Components\Developer;
+use Leadvertex\External\Export\Core\Components\MultiLang;
 use Leadvertex\External\Export\Core\FieldDefinitions\IntegerDefinition;
 use Leadvertex\External\Export\Core\FieldDefinitions\StringDefinition;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -17,31 +19,40 @@ class SchemeTest extends TestCase
     /** @var MockObject */
     private $type;
     /** @var array */
-    private $names;
-    /** @var array */
-    private $description;
-    /** @var array */
     private $fieldDefinitions;
     /** @var Scheme */
     private $scheme;
+    /** @var MultiLang */
+    private $nameDefinition;
+    /** @var MultiLang */
+    private $description;
+    /** @var MultiLang */
+    private $defaultMultiLang;
 
+    /**
+     * @throws Exception
+     */
     public function setUp()
     {
         parent::setUp();
 
         $this->developer = $this->createMock(Developer::class);
         $this->type = $this->createMock(Type::class);
-        $this->names = ['Bob','Martin','Lesly'];
-        $this->description = ['textDescription'];
+
+        $this->nameDefinition = new MultiLang(array('en' => 'Organization name', 'ru' => 'Название организации'));
+        $this->description = new MultiLang(array('en' => 'Description', 'ru' => 'Описание'));
+
+        $this->defaultMultiLang = new MultiLang(array('en' => 'default test field', 'ru' => 'Дефолтное тестовое поле'));
+
         $this->fieldDefinitions = [
-            'name1' => new IntegerDefinition([],[],'defaultValue',true),
-            'name2' => new StringDefinition([],[],'defaultValue',true),
+            'name1' => new IntegerDefinition($this->defaultMultiLang,$this->defaultMultiLang,1,true),
+            'name2' => new StringDefinition($this->defaultMultiLang,$this->defaultMultiLang,'default value for test',true),
         ];
 
         $this->scheme = new Scheme(
             $this->developer,
             $this->type,
-            $this->names,
+            $this->nameDefinition,
             $this->description,
             $this->fieldDefinitions
         );
@@ -56,7 +67,7 @@ class SchemeTest extends TestCase
         $this->scheme = new Scheme(
             $this->developer,
             $this->type,
-            $this->names,
+            $this->nameDefinition,
             $this->description,
             $fieldDefinitions
         );
@@ -79,7 +90,7 @@ class SchemeTest extends TestCase
 
     public function testGetDescription()
     {
-        $this->assertEquals($this->description, $this->scheme->getDescriptions());
+        $this->assertEquals($this->description, $this->scheme->getDescription());
     }
 
     public function testToArray()
@@ -87,8 +98,8 @@ class SchemeTest extends TestCase
         $expected = [
             'developer' => $this->developer->toArray(),
             'type' => $this->type->get(),
-            'name' => $this->names,
-            'description' => $this->description,
+            'name' => $this->nameDefinition->getTranslations(),
+            'description' => $this->description->getTranslations(),
             'fields' => [],
         ];
         foreach ($this->fieldDefinitions as $fieldName => $fieldDefinition) {
@@ -107,6 +118,6 @@ class SchemeTest extends TestCase
 
     public function testGetName()
     {
-        $this->assertEquals($this->names, $this->scheme->getNames());
+        $this->assertEquals($this->nameDefinition, $this->scheme->getName());
     }
 }

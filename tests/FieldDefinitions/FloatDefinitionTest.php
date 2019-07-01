@@ -3,12 +3,14 @@
 namespace Leadvertex\External\Export\Core\FieldDefinitions;
 
 
+use Exception;
+use Leadvertex\External\Export\Core\Components\MultiLang;
 use PHPUnit\Framework\TestCase;
 
 class FloatDefinitionTest extends TestCase
 {
     /** @var array */
-    private $names;
+    private $name;
     /** @var array */
     private $descriptions;
     /** @var string */
@@ -18,17 +20,20 @@ class FloatDefinitionTest extends TestCase
     /** @var StringDefinition */
     private $floatDefinition;
 
+    /**
+     * @throws Exception
+     */
     public function setUp()
     {
         parent::setUp();
 
-        $this->names = [];
-        $this->descriptions = [];
-        $this->default = 'DefaultValue';
+        $this->name = new MultiLang(array('en' => 'Organization name', 'ru' => 'Название организации'));
+        $this->descriptions = new MultiLang(array('en' => 'Description', 'ru' => 'Описание'));
+        $this->default = 2.95;
         $this->required = true;
 
         $this->floatDefinition = new FloatDefinition(
-            $this->names,
+            $this->name,
             $this->descriptions,
             $this->default,
             $this->required
@@ -42,15 +47,16 @@ class FloatDefinitionTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProvider
+     * @dataProvider dataProviderForValidate
      * @param bool $required
      * @param $value
      * @param bool $expected
+     * @throws Exception
      */
     public function testValidateValue(bool $required, $value, bool $expected)
     {
         $floatDefinition = new FloatDefinition(
-            $this->names,
+            $this->name,
             $this->descriptions,
             $this->default,
             $required
@@ -59,13 +65,24 @@ class FloatDefinitionTest extends TestCase
         $this->assertEquals($expected, $floatDefinition->validateValue($value));
     }
 
-    public function dataProvider()
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function dataProviderForValidate()
     {
         return [
-            [true, 'invalidText', false],
-            [true, (float) random_int(1,100), true],
-            [false, null, true],
-            [false, (float) random_int(1,100), true],
+            ['required' => true, 'value' => 'invalidText', 'expected' => false],
+            ['required' => true, 'value' => (float) random_int(1,100), 'expected' => true],
+            ['required' => true, 'value' => random_int(1,100), 'expected' => true],
+            ['required' => true, 'value' => 5.95, 'expected' => true],
+            ['required' => true, 'value' => null, 'expected' => false],
+            ['required' => true, 'value' => [5.14], 'expected' => false],
+
+            ['required' => false, 'value' => 5.65, 'expected' => true],
+            ['required' => false, 'value' => '5.65', 'expected' => true],
+            ['required' => false, 'value' => '5.65text', 'expected' => false],
+            ['required' => false, 'value' => null, 'expected' => false],
         ];
     }
 }

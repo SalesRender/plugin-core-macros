@@ -3,15 +3,17 @@
 namespace Leadvertex\External\Export\Core\FieldDefinitions;
 
 
+use Exception;
 use InvalidArgumentException;
+use Leadvertex\External\Export\Core\Components\MultiLang;
 use PHPUnit\Framework\TestCase;
 
 class ArrayDefinitionTest extends TestCase
 {
     /** @var array */
-    private $names;
+    private $name;
     /** @var array */
-    private $descriptions;
+    private $description;
     /** @var string */
     private $default;
     /** @var bool */
@@ -21,36 +23,45 @@ class ArrayDefinitionTest extends TestCase
     /** @var array */
     private $enum;
 
+    /**
+     * @throws Exception
+     */
     public function setUp()
     {
         parent::setUp();
 
-        $this->names = ['Mark','Bob','Frank'];
-        $this->descriptions = ['description'];
-        $this->default = 'DefaultValue';
+        $this->name = new MultiLang(array('en' => 'Organization name', 'ru' => 'Название организации'));
+        $this->description = new MultiLang(array('en' => 'Description', 'ru' => 'Описание'));
+        $this->default = [];
         $this->required = true;
-        $this->enum = ['enum'];
+        $this->enum = [
+            'jan' => new MultiLang(['en' => 'January', 'ru' => 'Январь']),
+            'feb' => new MultiLang(['en' => 'February', 'ru' => 'Февраль'])
+        ];
 
         $this->arrayDefinition = new ArrayDefinition(
-            $this->names,
-            $this->descriptions,
+            $this->name,
+            $this->description,
+            $this->enum,
             $this->default,
-            $this->required,
-            $this->enum
+            $this->required
         );
     }
 
+    /**
+     * @throws Exception
+     */
     public function testInvalidEnum()
     {
         $this->expectException(InvalidArgumentException::class);
-        $enum = ['enum', ['bla']];
+        $enum = ['enum', ['invalid text for Enum']];
 
         $this->arrayDefinition = new ArrayDefinition(
-            $this->names,
-            $this->descriptions,
+            $this->name,
+            $this->description,
+            $enum,
             $this->default,
-            $this->required,
-            $enum
+            $this->required
         );
     }
 
@@ -60,16 +71,18 @@ class ArrayDefinitionTest extends TestCase
     }
 
     /**
-     * @dataProvider dataProvider
+     * @dataProvider dataProviderForValidate
      * @param bool $required
      * @param array $value
      * @param bool $expected
+     * @throws Exception
      */
-    public function testValidateValue(bool $required, array $value, bool $expected)
+    public function testValidateValue(bool $required, $value, bool $expected)
     {
         $textDefinition = new ArrayDefinition(
-            $this->names,
-            $this->descriptions,
+            $this->name,
+            $this->description,
+            $this->enum,
             $this->default,
             $required
         );
@@ -77,25 +90,34 @@ class ArrayDefinitionTest extends TestCase
         $this->assertEquals($expected, $textDefinition->validateValue($value));
     }
 
-    public function dataProvider()
+    public function dataProviderForValidate()
     {
-        return [
-            [true, [], false],
-            [true, ['notEmpty'], true],
-            [false, [], true],
-            [false, ['notEmpty'], true],
+        $data = [
+            ['required' => true, 'value' => [], 'expected' => false],
+            ['required' => true, 'value' => null, 'expected' => false],
+            ['required' => true, 'value' => [['test value in array'],['two']], 'expected' => false],
+            ['required' => true, 'value' => [''], 'expected' => false],
+
+            ['required' => false, 'value' => [1], 'expected' => false],
+            ['required' => false, 'value' => ['jan','feb'], 'expected' => true],
         ];
+
+        $result = [];
+        foreach ($data as $item) {
+            $result[json_encode($item['value'])] = $item;
+        }
+        return $result;
     }
 
     public function testToArray()
     {
         $expected = [
             'definition' => 'array',
-            'name' => $this->names,
-            'description' => $this->descriptions,
+            'name' => $this->name->getTranslations(),
+            'description' => $this->description->getTranslations(),
             'default' => $this->default,
             'required' => $this->required,
-            'enum' => $this->enum
+            'enum' => MultiLang::toArray($this->enum)
         ];
 
         $this->assertEquals($expected, $this->arrayDefinition->toArray());
