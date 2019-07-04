@@ -22,7 +22,7 @@ class ArrayDefinition extends FieldDefinition
 
     /**
      * ArrayDefinition constructor.
-     * @param MultiLang $name
+     * @param MultiLang $label
      * @param MultiLang $description
      * @param MultiLang[] $enum witch represent value => caption dropdown in different languages
      * array(
@@ -33,9 +33,9 @@ class ArrayDefinition extends FieldDefinition
      * @param bool $required
      * @throws Exception
      */
-    public function __construct(MultiLang $name, MultiLang $description, array $enum, $default, bool $required)
+    public function __construct(MultiLang $label, MultiLang $description, array $enum, $default, bool $required)
     {
-        parent::__construct($name, $description, $default, $required);
+        parent::__construct($label, $description, $default, $required);
         MultiLang::guardLangArray($enum, new InvalidArgumentException('Invalid values array in ' . __CLASS__));
         $this->enum = $enum;
     }

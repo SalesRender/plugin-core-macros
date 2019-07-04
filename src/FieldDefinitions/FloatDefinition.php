@@ -13,10 +13,10 @@ use Leadvertex\External\Export\Core\Components\MultiLang;
 class FloatDefinition extends FieldDefinition
 {
 
-    public function __construct(MultiLang $name, MultiLang $description, $default, bool $required)
+    public function __construct(MultiLang $label, MultiLang $description, $default, bool $required)
     {
         $default = (float) $default;
-        parent::__construct($name, $description, $default, $required);
+        parent::__construct($label, $description, $default, $required);
     }
 
     /**

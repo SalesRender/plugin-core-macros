@@ -14,22 +14,22 @@ use Leadvertex\External\Export\Core\Components\MultiLang;
 abstract class FieldDefinition
 {
 
-    protected $name = [];
+    protected $label = [];
     protected $description = [];
     protected $default;
     protected $required;
 
     /**
      * ConfigDefinition constructor.
-     * @param MultiLang $name
+     * @param MultiLang $label
      * @param MultiLang $description
      * @param string|int|float|bool|array|null $default value
      * @param bool $required is this field required
      * @throws Exception
      */
-    public function __construct(MultiLang $name, MultiLang $description, $default, bool $required)
+    public function __construct(MultiLang $label, MultiLang $description, $default, bool $required)
     {
-        $this->name = $name;
+        $this->label = $label;
         $this->description = $description;
         $this->default = $default;
         $this->required = $required;
@@ -68,7 +68,7 @@ abstract class FieldDefinition
     {
         return [
             'definition' => $this->definition(),
-            'name' => $this->name->getTranslations(),
+            'label' => $this->label->getTranslations(),
             'description' => $this->description->getTranslations(),
             'default' => $this->default,
             'required' => (bool) $this->required,

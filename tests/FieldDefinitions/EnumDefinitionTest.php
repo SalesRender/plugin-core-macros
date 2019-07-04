@@ -11,15 +11,20 @@ class EnumDefinitionTest extends TestCase
 {
 
     /** @var MultiLang */
-    private $nameMultiLang;
+    private $label;
+
     /** @var MultiLang */
-    private $descriptions;
+    private $description;
+
     /** @var array */
     private $enum;
+
     /** @var string */
     private $default;
+
     /** @var bool */
     private $required;
+
     /** @var EnumDefinition */
     private $enumDefinition;
 
@@ -30,18 +35,33 @@ class EnumDefinitionTest extends TestCase
     {
         parent::setUp();
 
-        $this->nameMultiLang = new MultiLang(array('en' => 'Organization name', 'ru' => 'Название организации'));
-        $this->descriptions = new MultiLang(array('en' => 'Description', 'ru' => 'Описание'));
+        $this->label = new MultiLang([
+            'en' => 'Month',
+            'ru' => 'Месяц',
+        ]);
+
+        $this->description = new MultiLang([
+            'en' => 'Description',
+            'ru' => 'Описание',
+        ]);
+
         $this->enum = [
-            'jan' => new MultiLang(['en' => 'January', 'ru' => 'Январь']),
-            'feb' => new MultiLang(['en' => 'February', 'ru' => 'Февраль'])
+            'jan' => new MultiLang([
+                'en' => 'January',
+                'ru' => 'Январь',
+            ]),
+            'feb' => new MultiLang([
+                'en' => 'February',
+                'ru' => 'Февраль',
+            ]),
         ];
+
         $this->default = 'Test value for default param';
         $this->required = true;
 
         $this->enumDefinition = new EnumDefinition(
-            $this->nameMultiLang,
-            $this->descriptions,
+            $this->label,
+            $this->description,
             $this->enum,
             $this->default,
             $this->required
@@ -52,11 +72,11 @@ class EnumDefinitionTest extends TestCase
     {
         $expected = [
             'definition' => 'enum',
-            'name' => $this->nameMultiLang->getTranslations(),
-            'description' => $this->descriptions->getTranslations(),
+            'label' => $this->label->getTranslations(),
+            'description' => $this->description->getTranslations(),
             'default' => $this->default,
             'required' => $this->required,
-            'enum' => MultiLang::toArray($this->enum)
+            'enum' => MultiLang::toArray($this->enum),
         ];
 
         $this->assertEquals($expected, $this->enumDefinition->toArray());
@@ -77,8 +97,8 @@ class EnumDefinitionTest extends TestCase
     public function testValidateValue(bool $required, $value, bool $expected)
     {
         $definition = new EnumDefinition(
-            $this->nameMultiLang,
-            $this->descriptions,
+            $this->label,
+            $this->description,
             $this->enum,
             $this->default,
             $required
@@ -90,12 +110,31 @@ class EnumDefinitionTest extends TestCase
     public function dataProviderForValidate()
     {
         return [
-            ['required' => true, 'value' => null, 'expected' => false],
-            ['required' => true, 'value' => 1, 'expected' => false],
-            ['required' => true, 'value' => 'feb', 'expected' => true],
-            ['required' => true, 'value' => 'sen', 'expected' => false],
-
-            ['required' => false, 'value' => 'jan', 'expected' => true],
+            [
+                'required' => true,
+                'value' => null,
+                'expected' => false,
+            ],
+            [
+                'required' => true,
+                'value' => 1,
+                'expected' => false,
+            ],
+            [
+                'required' => true,
+                'value' => 'feb',
+                'expected' => true,
+            ],
+            [
+                'required' => true,
+                'value' => 'sen',
+                'expected' => false,
+            ],
+            [
+                'required' => false,
+                'value' => 'jan',
+                'expected' => true,
+            ],
         ];
     }
 

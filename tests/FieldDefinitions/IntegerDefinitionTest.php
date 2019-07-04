@@ -9,14 +9,18 @@ use PHPUnit\Framework\TestCase;
 
 class IntegerDefinitionTest extends TestCase
 {
-    /** @var array */
-    private $name;
-    /** @var array */
-    private $descriptions;
+    /** @var MultiLang */
+    private $label;
+
+    /** @var MultiLang */
+    private $description;
+
     /** @var string */
     private $default;
+
     /** @var bool */
     private $required;
+
     /** @var StringDefinition */
     private $integerDefinition;
 
@@ -27,14 +31,22 @@ class IntegerDefinitionTest extends TestCase
     {
         parent::setUp();
 
-        $this->name = new MultiLang(array('en' => 'Organization name', 'ru' => 'Название организации'));
-        $this->descriptions = new MultiLang(array('en' => 'Description', 'ru' => 'Описание'));
+        $this->label = new MultiLang([
+            'en' => 'Your age',
+            'ru' => 'Ваш возраст',
+        ]);
+
+        $this->description = new MultiLang([
+            'en' => 'Description',
+            'ru' => 'Описание',
+        ]);
+
         $this->default = 5;
         $this->required = true;
 
         $this->integerDefinition = new IntegerDefinition(
-            $this->name,
-            $this->descriptions,
+            $this->label,
+            $this->description,
             $this->default,
             $this->required
         );
@@ -56,8 +68,8 @@ class IntegerDefinitionTest extends TestCase
     public function testValidateValue(bool $required, $value, bool $expected)
     {
         $integerDefinition = new IntegerDefinition(
-            $this->name,
-            $this->descriptions,
+            $this->label,
+            $this->description,
             $this->default,
             $required
         );
@@ -72,15 +84,53 @@ class IntegerDefinitionTest extends TestCase
     public function dataProviderForValidate()
     {
         return [
-            ['required' => true, 'value' => null, 'expected' => false],
-            ['required' => true, 'value' => '   ', 'expected' => false],
-            ['required' => true, 'value' => random_int(1,100), 'expected' => true],
-            ['required' => true, 'value' => [95,49], 'expected' => false],
+            [
+                'required' => true,
+                'value' => null,
+                'expected' => false,
+            ],
+            [
+                'required' => true,
+                'value' => '   ',
+                'expected' => false,
+            ],
+            [
+                'required' => true,
+                'value' => random_int(1, 100),
+                'expected' => true,
+            ],
+            [
+                'required' => true,
+                'value' => [
+                    95,
+                    49,
+                ],
+                'expected' => false,
+            ],
 
-            ['required' => false, 'value' => null, 'expected' => true],
-            ['required' => false, 'value' => '   ', 'expected' => false],
-            ['required' => false, 'value' => random_int(1,100), 'expected' => true],
-            ['required' => false, 'value' => [95,49], 'expected' => false],
+            [
+                'required' => false,
+                'value' => null,
+                'expected' => true,
+            ],
+            [
+                'required' => false,
+                'value' => '   ',
+                'expected' => false,
+            ],
+            [
+                'required' => false,
+                'value' => random_int(1, 100),
+                'expected' => true,
+            ],
+            [
+                'required' => false,
+                'value' => [
+                    95,
+                    49,
+                ],
+                'expected' => false,
+            ],
         ];
     }
 }

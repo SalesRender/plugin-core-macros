@@ -9,14 +9,18 @@ use PHPUnit\Framework\TestCase;
 
 class StringDefinitionTest extends TestCase
 {
-    /** @var array */
-    private $name;
-    /** @var array */
-    private $descriptions;
+    /** @var MultiLang */
+    private $label;
+
+    /** @var MultiLang */
+    private $description;
+
     /** @var string */
     private $default;
+
     /** @var bool */
     private $required;
+
     /** @var StringDefinition */
     private $stringDefinition;
 
@@ -27,14 +31,22 @@ class StringDefinitionTest extends TestCase
     {
         parent::setUp();
 
-        $this->name = new MultiLang(array('en' => 'Organization name', 'ru' => 'Название организации'));
-        $this->descriptions = new MultiLang(array('en' => 'Description', 'ru' => 'Описание'));
+        $this->label = new MultiLang([
+            'en' => 'Organization name',
+            'ru' => 'Название организации',
+        ]);
+
+        $this->description = new MultiLang([
+            'en' => 'Description',
+            'ru' => 'Описание',
+        ]);
+
         $this->default = 'Test value for default param';
         $this->required = true;
 
         $this->stringDefinition = new StringDefinition(
-            $this->name,
-            $this->descriptions,
+            $this->label,
+            $this->description,
             $this->default,
             $this->required
         );
@@ -56,8 +68,8 @@ class StringDefinitionTest extends TestCase
     public function testValidateValue(bool $required, $value, bool $expected)
     {
         $stringDefinition = new StringDefinition(
-            $this->name,
-            $this->descriptions,
+            $this->label,
+            $this->description,
             $this->default,
             $required
         );
@@ -68,14 +80,42 @@ class StringDefinitionTest extends TestCase
     public function dataProviderForValidate()
     {
         return [
-            ['required' => true, 'value' => '   ', 'expected' => false],
-            ['required' => true, 'value' => 'notEmpty', 'expected' => true],
-            ['required' => true, 'value' => 1, 'expected' => false],
-            ['required' => true, 'value' => [], 'expected' => false],
+            [
+                'required' => true,
+                'value' => '   ',
+                'expected' => false,
+            ],
+            [
+                'required' => true,
+                'value' => 'notEmpty',
+                'expected' => true,
+            ],
+            [
+                'required' => true,
+                'value' => 1,
+                'expected' => false,
+            ],
+            [
+                'required' => true,
+                'value' => [],
+                'expected' => false,
+            ],
 
-            ['required' => false, 'value' => '   ', 'expected' => true],
-            ['required' => false, 'value' => 'notEmpty', 'expected' => true],
-            ['required' => false, 'value' => 1, 'expected' => false],
+            [
+                'required' => false,
+                'value' => '   ',
+                'expected' => true,
+            ],
+            [
+                'required' => false,
+                'value' => 'notEmpty',
+                'expected' => true,
+            ],
+            [
+                'required' => false,
+                'value' => 1,
+                'expected' => false,
+            ],
         ];
     }
 }

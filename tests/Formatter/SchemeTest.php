@@ -8,24 +8,29 @@ use Leadvertex\External\Export\Core\Components\Developer;
 use Leadvertex\External\Export\Core\Components\MultiLang;
 use Leadvertex\External\Export\Core\FieldDefinitions\IntegerDefinition;
 use Leadvertex\External\Export\Core\FieldDefinitions\StringDefinition;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 
 class SchemeTest extends TestCase
 {
-    /** @var MockObject */
+    /** @var Developer */
     private $developer;
-    /** @var MockObject */
+
+    /** @var Type */
     private $type;
-    /** @var array */
-    private $fieldDefinitions;
+
+    /** @var FieldGroup[] */
+    private $fieldGroups;
+
     /** @var Scheme */
     private $scheme;
+
     /** @var MultiLang */
-    private $nameDefinition;
+    private $label;
+
     /** @var MultiLang */
     private $description;
+
     /** @var MultiLang */
     private $defaultMultiLang;
 
@@ -36,25 +41,58 @@ class SchemeTest extends TestCase
     {
         parent::setUp();
 
-        $this->developer = $this->createMock(Developer::class);
-        $this->type = $this->createMock(Type::class);
+        $this->developer = new Developer(
+            'Tony Stark',
+            'tony@starkindustries.com',
+            'starkindustries.com'
+        );
 
-        $this->nameDefinition = new MultiLang(array('en' => 'Organization name', 'ru' => 'Название организации'));
-        $this->description = new MultiLang(array('en' => 'Description', 'ru' => 'Описание'));
+        $this->type = new Type(Type::ORDERS);
 
-        $this->defaultMultiLang = new MultiLang(array('en' => 'default test field', 'ru' => 'Дефолтное тестовое поле'));
+        $this->label = new MultiLang([
+            'en' => 'Organization name',
+            'ru' => 'Название организации',
+        ]);
 
-        $this->fieldDefinitions = [
-            'name1' => new IntegerDefinition($this->defaultMultiLang,$this->defaultMultiLang,1,true),
-            'name2' => new StringDefinition($this->defaultMultiLang,$this->defaultMultiLang,'default value for test',true),
+        $this->description = new MultiLang([
+            'en' => 'Description',
+            'ru' => 'Описание',
+        ]);
+
+        $this->defaultMultiLang = new MultiLang([
+            'en' => 'default test field',
+            'ru' => 'Дефолтное тестовое поле',
+        ]);
+
+        $this->fieldGroups = [
+            'main' => new FieldGroup(
+                new MultiLang([
+                    'en' => 'Main settings',
+                    'ru' => 'Основные настройки',
+                ]),
+                [
+                    'field_1' => new IntegerDefinition($this->defaultMultiLang, $this->defaultMultiLang, 1, true),
+                    'field_2' => new StringDefinition($this->defaultMultiLang, $this->defaultMultiLang, 'default value for test', true),
+                ]
+            ),
+            'additional' => new FieldGroup(
+                new MultiLang([
+                    'en' => 'Additional settings',
+                    'ru' => 'Дополнительные настройки',
+                ]),
+                [
+                    'field_3' => new IntegerDefinition($this->defaultMultiLang, $this->defaultMultiLang, 1, true),
+                    'field_4' => new StringDefinition($this->defaultMultiLang, $this->defaultMultiLang, 'default value for test', true),
+                ]
+            ),
         ];
 
         $this->scheme = new Scheme(
             $this->developer,
             $this->type,
-            $this->nameDefinition,
+            $this->label,
             $this->description,
-            $this->fieldDefinitions
+            $this->fieldGroups
         );
 
     }
@@ -62,12 +100,15 @@ class SchemeTest extends TestCase
     public function testCreateWithInvalidFieldDefinition()
     {
         $this->expectException(TypeError::class);
-        $fieldDefinitions = [5, 10];
+        $fieldDefinitions = [
+            5,
+            10,
+        ];
 
         $this->scheme = new Scheme(
             $this->developer,
             $this->type,
-            $this->nameDefinition,
+            $this->label,
             $this->description,
             $fieldDefinitions
         );
@@ -80,7 +121,7 @@ class SchemeTest extends TestCase
 
     public function testGetFields()
     {
-        $this->assertEquals($this->fieldDefinitions, $this->scheme->getFields());
+        $this->assertEquals($this->fieldGroups, $this->scheme->getGroups());
     }
 
     public function testGetDeveloper()
@@ -98,26 +139,37 @@ class SchemeTest extends TestCase
         $expected = [
             'developer' => $this->developer->toArray(),
             'type' => $this->type->get(),
-            'name' => $this->nameDefinition->getTranslations(),
+            'label' => $this->label->getTranslations(),
             'description' => $this->description->getTranslations(),
-            'fields' => [],
+            'groups' => [],
         ];
-        foreach ($this->fieldDefinitions as $fieldName => $fieldDefinition) {
-            $expected['fields'][$fieldName] = $fieldDefinition->toArray();
+        foreach ($this->fieldGroups as $groupName => $fieldGroup) {
+            $expected['groups'][$groupName] = $fieldGroup->toArray();
         }
 
         $this->assertEquals($expected, $this->scheme->toArray());
     }
 
-    public function testGetField()
+    public function testGetGroup()
     {
-        foreach ($this->fieldDefinitions as $key => $fieldDefinition) {
-            $this->assertEquals($fieldDefinition, $this->scheme->getField($key));
-        }
+        $this->assertEquals(
+            $this->fieldGroups['main'],
+            $this->scheme->getGroup('main')
+        );
+
+        $this->assertEquals(
+            $this->fieldGroups['additional'],
+            $this->scheme->getGroup('additional')
+        );
+    }
+
+    public function testGetGroups()
+    {
+        $this->assertEquals($this->fieldGroups, $this->scheme->getGroups());
     }
 
     public function testGetName()
     {
-        $this->assertEquals($this->nameDefinition, $this->scheme->getName());
+        $this->assertEquals($this->label, $this->scheme->getLabel());
     }
 }

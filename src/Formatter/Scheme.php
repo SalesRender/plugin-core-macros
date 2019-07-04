@@ -10,7 +10,6 @@ namespace Leadvertex\External\Export\Core\Formatter;
 
 use Leadvertex\External\Export\Core\Components\Developer;
 use Leadvertex\External\Export\Core\Components\MultiLang;
-use Leadvertex\External\Export\Core\FieldDefinitions\FieldDefinition;
 use TypeError;
 
 class Scheme
@@ -20,13 +19,13 @@ class Scheme
     private $type;
 
     /** @var MultiLang  */
-    protected $name;
+    protected $label;
 
     /** @var MultiLang  */
     protected $description;
 
-    /** @var FieldDefinition[] */
-    protected $fields = [];
+    /** @var FieldGroup[] */
+    protected $groups = [];
 
     /** @var Developer */
     private $developer;
@@ -36,22 +35,22 @@ class Scheme
      * Scheme constructor.
      * @param Developer $developer
      * @param Type $type
-     * @param MultiLang $name
+     * @param MultiLang $label
      * @param MultiLang $description
-     * @param array $fieldDefinitions
+     * @param FieldGroup[] $fieldGroups
      */
-    public function __construct(Developer $developer, Type $type, MultiLang $name, MultiLang $description, array $fieldDefinitions)
+    public function __construct(Developer $developer, Type $type, MultiLang $label, MultiLang $description, array $fieldGroups)
     {
         $this->developer = $developer;
         $this->type = $type;
-        $this->name = $name;
+        $this->label = $label;
         $this->description = $description;
 
-        foreach ($fieldDefinitions as $fieldName => $fieldDefinition) {
-            if (!$fieldDefinition instanceof FieldDefinition) {
-                throw new TypeError('Every item of $fieldsDefinitions should be instance of ' . FieldDefinition::class);
+        foreach ($fieldGroups as $groupName => $fieldsGroup) {
+            if (!$fieldsGroup instanceof FieldGroup) {
+                throw new TypeError('Every item of $fieldsDefinitions should be instance of ' . FieldGroup::class);
             }
-            $this->fields[$fieldName] = $fieldDefinition;
+            $this->groups[$groupName] = $fieldsGroup;
         }
     }
 
@@ -75,9 +74,9 @@ class Scheme
      * Return property name in passed language. If passed language was not defined, will return name in default language
      * @return MultiLang
      */
-    public function getName(): MultiLang
+    public function getLabel(): MultiLang
     {
-        return $this->name;
+        return $this->label;
     }
 
     /**
@@ -91,19 +90,19 @@ class Scheme
 
     /**
      * @param string $name
-     * @return FieldDefinition
+     * @return FieldGroup
      */
-    public function getField(string $name): FieldDefinition
+    public function getGroup(string $name): FieldGroup
     {
-        return $this->fields[$name];
+        return $this->groups[$name];
     }
 
     /**
-     * @return FieldDefinition[]
+     * @return FieldGroup[]
      */
-    public function getFields(): array
+    public function getGroups(): array
     {
-        return $this->fields;
+        return $this->groups;
     }
 
     /**
@@ -114,13 +113,13 @@ class Scheme
         $array = [
             'developer' => $this->developer->toArray(),
             'type' => $this->type->get(),
-            'name' => $this->name->getTranslations(),
+            'label' => $this->label->getTranslations(),
             'description' => $this->description->getTranslations(),
-            'fields' => [],
+            'groups' => [],
         ];
 
-        foreach ($this->getFields() as $fieldName => $fieldDefinition) {
-            $array['fields'][$fieldName] = $fieldDefinition->toArray();
+        foreach ($this->getGroups() as $groupName => $fieldDefinition) {
+            $array['groups'][$groupName] = $fieldDefinition->toArray();
         }
 
         return $array;

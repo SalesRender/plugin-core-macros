@@ -9,14 +9,18 @@ use PHPUnit\Framework\TestCase;
 
 class FloatDefinitionTest extends TestCase
 {
-    /** @var array */
-    private $name;
-    /** @var array */
-    private $descriptions;
+    /** @var MultiLang */
+    private $label;
+
+    /** @var MultiLang */
+    private $description;
+
     /** @var string */
     private $default;
+
     /** @var bool */
     private $required;
+
     /** @var StringDefinition */
     private $floatDefinition;
 
@@ -27,14 +31,22 @@ class FloatDefinitionTest extends TestCase
     {
         parent::setUp();
 
-        $this->name = new MultiLang(array('en' => 'Organization name', 'ru' => 'Название организации'));
-        $this->descriptions = new MultiLang(array('en' => 'Description', 'ru' => 'Описание'));
+        $this->label = new MultiLang([
+            'en' => 'Your weight',
+            'ru' => 'Ваш вес',
+        ]);
+
+        $this->description = new MultiLang([
+            'en' => 'Description',
+            'ru' => 'Описание',
+        ]);
+
         $this->default = 2.95;
         $this->required = true;
 
         $this->floatDefinition = new FloatDefinition(
-            $this->name,
-            $this->descriptions,
+            $this->label,
+            $this->description,
             $this->default,
             $this->required
         );
@@ -56,8 +68,8 @@ class FloatDefinitionTest extends TestCase
     public function testValidateValue(bool $required, $value, bool $expected)
     {
         $floatDefinition = new FloatDefinition(
-            $this->name,
-            $this->descriptions,
+            $this->label,
+            $this->description,
             $this->default,
             $required
         );
@@ -72,17 +84,57 @@ class FloatDefinitionTest extends TestCase
     public function dataProviderForValidate()
     {
         return [
-            ['required' => true, 'value' => 'invalidText', 'expected' => false],
-            ['required' => true, 'value' => (float) random_int(1,100), 'expected' => true],
-            ['required' => true, 'value' => random_int(1,100), 'expected' => true],
-            ['required' => true, 'value' => 5.95, 'expected' => true],
-            ['required' => true, 'value' => null, 'expected' => false],
-            ['required' => true, 'value' => [5.14], 'expected' => false],
+            [
+                'required' => true,
+                'value' => 'invalidText',
+                'expected' => false,
+            ],
+            [
+                'required' => true,
+                'value' => (float)random_int(1, 100),
+                'expected' => true,
+            ],
+            [
+                'required' => true,
+                'value' => random_int(1, 100),
+                'expected' => true,
+            ],
+            [
+                'required' => true,
+                'value' => 5.95,
+                'expected' => true,
+            ],
+            [
+                'required' => true,
+                'value' => null,
+                'expected' => false,
+            ],
+            [
+                'required' => true,
+                'value' => [5.14],
+                'expected' => false,
+            ],
 
-            ['required' => false, 'value' => 5.65, 'expected' => true],
-            ['required' => false, 'value' => '5.65', 'expected' => true],
-            ['required' => false, 'value' => '5.65text', 'expected' => false],
-            ['required' => false, 'value' => null, 'expected' => false],
+            [
+                'required' => false,
+                'value' => 5.65,
+                'expected' => true,
+            ],
+            [
+                'required' => false,
+                'value' => '5.65',
+                'expected' => true,
+            ],
+            [
+                'required' => false,
+                'value' => '5.65text',
+                'expected' => false,
+            ],
+            [
+                'required' => false,
+                'value' => null,
+                'expected' => false,
+            ],
         ];
     }
 }

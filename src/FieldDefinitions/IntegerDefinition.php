@@ -13,10 +13,10 @@ use Leadvertex\External\Export\Core\Components\MultiLang;
 class IntegerDefinition extends FieldDefinition
 {
 
-    public function __construct(MultiLang $name, MultiLang $description, $default, bool $required)
+    public function __construct(MultiLang $label, MultiLang $description, $default, bool $required)
     {
         $default = (int) $default;
-        parent::__construct($name, $description, $default, $required);
+        parent::__construct($label, $description, $default, $required);
     }
 
     /**

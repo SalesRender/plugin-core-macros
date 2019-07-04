@@ -10,14 +10,18 @@ use PHPUnit\Framework\TestCase;
 class TextDefinitionTest extends TestCase
 {
 
-    /** @var array */
-    private $name;
-    /** @var array */
-    private $descriptions;
+    /** @var MultiLang */
+    private $label;
+
+    /** @var MultiLang */
+    private $description;
+
     /** @var string */
     private $default;
+
     /** @var bool */
     private $required;
+
     /** @var TextDefinition */
     private $textDefinition;
 
@@ -28,14 +32,22 @@ class TextDefinitionTest extends TestCase
     {
         parent::setUp();
 
-        $this->name = new MultiLang(array('en' => 'Organization name', 'ru' => 'Название организации'));
-        $this->descriptions = new MultiLang(array('en' => 'Description', 'ru' => 'Описание'));
+        $this->label = new MultiLang([
+            'en' => 'Organization name',
+            'ru' => 'Название организации'
+        ]);
+
+        $this->description = new MultiLang([
+            'en' => 'Description',
+            'ru' => 'Описание'
+        ]);
+
         $this->default = 'Test value for default param';
         $this->required = true;
 
         $this->textDefinition = new TextDefinition(
-            $this->name,
-            $this->descriptions,
+            $this->label,
+            $this->description,
             $this->default,
             $this->required
         );

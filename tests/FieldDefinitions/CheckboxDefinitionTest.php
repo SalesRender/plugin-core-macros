@@ -12,12 +12,16 @@ class CheckboxDefinitionTest extends TestCase
 
     /** @var CheckboxDefinition */
     private $checkboxDefinition;
-    /** @var array */
-    private $names;
-    /** @var array */
+
+    /** @var MultiLang */
+    private $label;
+
+    /** @var MultiLang */
     private $description;
+
     /** @var string */
     private $default;
+
     /** @var bool */
     private $required;
 
@@ -27,14 +31,21 @@ class CheckboxDefinitionTest extends TestCase
     public function setUp()
     {
         parent::setUp();
+        $this->label = new MultiLang([
+            'en' => 'Use field',
+            'ru' => 'Использовать поле',
+        ]);
 
-        $this->names = new MultiLang(array('en' => 'Organization name', 'ru' => 'Название организации'));
-        $this->description = new MultiLang(array('en' => 'Description', 'ru' => 'Описание'));
+        $this->description = new MultiLang([
+            'en' => 'Description',
+            'ru' => 'Описание',
+        ]);
+
         $this->default = 'Test value for default param';
         $this->required = true;
 
         $this->checkboxDefinition = new CheckboxDefinition(
-            $this->names,
+            $this->label,
             $this->description,
             $this->default,
             $this->required
@@ -56,7 +67,7 @@ class CheckboxDefinitionTest extends TestCase
     public function testValidateValue(bool $required, $value, bool $expected)
     {
         $definition = new CheckboxDefinition(
-            $this->names,
+            $this->label,
             $this->description,
             $this->default,
             $required
@@ -72,14 +83,42 @@ class CheckboxDefinitionTest extends TestCase
     public function dataProviderForValidate()
     {
         return [
-            ['required' => true, 'value' => false, 'expected' => false],
-            ['required' => true, 'value' => true, 'expected' => true],
+            [
+                'required' => true,
+                'value' => false,
+                'expected' => false,
+            ],
+            [
+                'required' => true,
+                'value' => true,
+                'expected' => true,
+            ],
 
-            ['required' => false, 'value' => false, 'expected' => true],
-            ['required' => false, 'value' => null, 'expected' => false],
-            ['required' => false, 'value' => random_int(1,100), 'expected' => false],
-            ['required' => false, 'value' => [], 'expected' => false],
-            ['required' => false, 'value' => 'string', 'expected' => false],
+            [
+                'required' => false,
+                'value' => false,
+                'expected' => true,
+            ],
+            [
+                'required' => false,
+                'value' => null,
+                'expected' => false,
+            ],
+            [
+                'required' => false,
+                'value' => random_int(1, 100),
+                'expected' => false,
+            ],
+            [
+                'required' => false,
+                'value' => [],
+                'expected' => false,
+            ],
+            [
+                'required' => false,
+                'value' => 'string',
+                'expected' => false,
+            ],
         ];
     }
 
