@@ -4,6 +4,7 @@
 namespace Leadvertex\External\Export\Core\Apps;
 
 
+use HaydenPierce\ClassFinder\ClassFinder;
 use Leadvertex\External\Export\Core\Components\ApiParams;
 use Leadvertex\External\Export\Core\Components\BatchParams;
 use Leadvertex\External\Export\Core\Components\ChunkedIds;
@@ -58,6 +59,40 @@ class WebApplication extends App
             'consoleScript' => $consoleScript,
         ]);
 
+        //TODO prettify output
+        $this->get('/', function (Request $request, Response $response, $args) {
+            /** @var FormatterInterface[] $classes */
+            $classes = ClassFinder::getClassesInNamespace('Leadvertex\External\Export\Format', ClassFinder::RECURSIVE_MODE);
+
+            $data = [];
+            foreach ($classes as $classname) {
+                if (!is_a($classname, FormatterInterface::class, true)) {
+                    continue;
+                }
+
+                $name = substr(strrchr($classname, "\\"), 1);
+                $data[$name] = [
+                    'name' => $classname::getName()->getTranslations(),
+                    'description' => $classname::getDescription()->getTranslations(),
+                ];
+            }
+
+            return $response->withJson($data);
+        });
+
+        //TODO prettify output
+        $this->get('/{formatter:[a-zA-Z][a-zA-Z\d_]*}', function (Request $request, Response $response, $args) {
+            $format = $args['formatter'];
+
+            /** @var FormatterInterface $classname */
+            $classname = "\Leadvertex\External\Export\Format\\{$format}\\{$format}";
+
+            return $response->withJson([
+                'name' => $classname::getName()->getTranslations(),
+                'description' => $classname::getDescription()->getTranslations(),
+            ]);
+        });
+
         $this->rpc('CONFIG', function (Request $request, Response $response, $args) {
             $format = $args['formatter'];
 
@@ -76,7 +111,7 @@ class WebApplication extends App
         });
 
         $this->rpc('VALIDATE', function (Request $request, Response $response, $args) {
-            $formatter = $args['formatter'];
+            $format = $args['formatter'];
 
             $apiParams = new ApiParams(
                 $request->getParsedBodyParam('api')['token'],
@@ -87,7 +122,7 @@ class WebApplication extends App
                 $request->getParsedBodyParam('config')
             );
 
-            $classname = "\Leadvertex\External\Export\Format\\{$formatter}\\{$formatter}";
+            $classname = "\Leadvertex\External\Export\Format\\{$format}\\{$format}";
             /** @var FormatterInterface $formatter */
             $formatter = new $classname($apiParams, $this->runtimeDir, $this->publicDir, $this->publicUrl);
 
@@ -106,8 +141,8 @@ class WebApplication extends App
 
         $this->rpc('GENERATE', function (Request $request, Response $response, $args) {
 
-            $formatter = $args['formatter'];
-            $classname = "\Leadvertex\External\Export\Format\\{$formatter}\\{$formatter}";
+            $format = $args['formatter'];
+            $classname = "\Leadvertex\External\Export\Format\\{$format}\\{$format}";
 
             /** @var FormatterInterface $formatter */
             $formatter = new $classname(

@@ -19,7 +19,7 @@ class Scheme
     private $type;
 
     /** @var MultiLang  */
-    protected $label;
+    protected $name;
 
     /** @var MultiLang  */
     protected $description;
@@ -35,15 +35,15 @@ class Scheme
      * Scheme constructor.
      * @param Developer $developer
      * @param Type $type
-     * @param MultiLang $label
+     * @param MultiLang $name
      * @param MultiLang $description
      * @param FieldGroup[] $fieldGroups
      */
-    public function __construct(Developer $developer, Type $type, MultiLang $label, MultiLang $description, array $fieldGroups)
+    public function __construct(Developer $developer, Type $type, MultiLang $name, MultiLang $description, array $fieldGroups)
     {
         $this->developer = $developer;
         $this->type = $type;
-        $this->label = $label;
+        $this->name = $name;
         $this->description = $description;
 
         foreach ($fieldGroups as $groupName => $fieldsGroup) {
@@ -74,9 +74,9 @@ class Scheme
      * Return property name in passed language. If passed language was not defined, will return name in default language
      * @return MultiLang
      */
-    public function getLabel(): MultiLang
+    public function getName(): MultiLang
     {
-        return $this->label;
+        return $this->name;
     }
 
     /**
@@ -113,7 +113,7 @@ class Scheme
         $array = [
             'developer' => $this->developer->toArray(),
             'type' => $this->type->get(),
-            'label' => $this->label->getTranslations(),
+            'name' => $this->name->getTranslations(),
             'description' => $this->description->getTranslations(),
             'groups' => [],
         ];

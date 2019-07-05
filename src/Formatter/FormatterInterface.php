@@ -10,6 +10,7 @@ namespace Leadvertex\External\Export\Core\Formatter;
 use Leadvertex\External\Export\Core\Components\ApiParams;
 use Leadvertex\External\Export\Core\Components\BatchResult\BatchResultInterface;
 use Leadvertex\External\Export\Core\Components\GenerateParams;
+use Leadvertex\External\Export\Core\Components\MultiLang;
 use Leadvertex\External\Export\Core\Components\StoredConfig;
 use Leadvertex\External\Export\Core\Components\WebhookManager;
 
@@ -18,8 +19,29 @@ interface FormatterInterface
 
     public function __construct(ApiParams $apiParams, string $runtimeDir, string $publicDir, string $publicUrl);
 
+    /**
+     * Should return human-friendly name of this exporter
+     * @return MultiLang
+     */
+    public static function getName(): MultiLang;
+
+    /**
+     * Should return human-friendly description of this exporter
+     * @return MultiLang
+     */
+    public static function getDescription(): MultiLang;
+
+    /**
+     * Should return scheme of exporter configs
+     * @return Scheme
+     */
     public function getScheme(): Scheme;
 
+    /**
+     * Validator of stored exporter config
+     * @param StoredConfig $config
+     * @return bool
+     */
     public function isConfigValid(StoredConfig $config): bool;
 
     public function generate(GenerateParams $params);

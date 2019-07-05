@@ -139,7 +139,7 @@ class SchemeTest extends TestCase
         $expected = [
             'developer' => $this->developer->toArray(),
             'type' => $this->type->get(),
-            'label' => $this->label->getTranslations(),
+            'name' => $this->label->getTranslations(),
             'description' => $this->description->getTranslations(),
             'groups' => [],
         ];
@@ -170,6 +170,6 @@ class SchemeTest extends TestCase
 
     public function testGetName()
     {
-        $this->assertEquals($this->label, $this->scheme->getLabel());
+        $this->assertEquals($this->label, $this->scheme->getName());
     }
 }
