@@ -1,6 +1,6 @@
 <?php
 /**
- * Created for lv-export-core.
+ * Created for plugin-export-core.
  * Datetime: 03.07.2018 14:41
  * @author Timur Kasumov aka XAKEPEHOK
  */
