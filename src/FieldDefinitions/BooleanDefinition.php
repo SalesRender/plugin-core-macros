@@ -8,7 +8,7 @@
 namespace Leadvertex\External\Export\Core\FieldDefinitions;
 
 
-class BoolDefinition extends FieldDefinition
+class BooleanDefinition extends FieldDefinition
 {
 
     /**
@@ -16,7 +16,7 @@ class BoolDefinition extends FieldDefinition
      */
     public function definition(): string
     {
-        return 'bool';
+        return 'boolean';
     }
 
     /**
