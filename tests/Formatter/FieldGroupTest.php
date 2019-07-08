@@ -8,7 +8,7 @@
 namespace Leadvertex\External\Export\Core\Formatter;
 
 use Leadvertex\External\Export\Core\Components\MultiLang;
-use Leadvertex\External\Export\Core\FieldDefinitions\CheckboxDefinition;
+use Leadvertex\External\Export\Core\FieldDefinitions\BooleanDefinition;
 use Leadvertex\External\Export\Core\FieldDefinitions\FieldDefinition;
 use PHPUnit\Framework\TestCase;
 
@@ -34,7 +34,7 @@ class FieldGroupTest extends TestCase
         ]);
 
         $this->fields = [
-            'use' => new CheckboxDefinition(
+            'use' => new BooleanDefinition(
                 new MultiLang([
                     'en' => 'Use this format',
                     'ru' => 'Использовать этот формат',
@@ -46,7 +46,7 @@ class FieldGroupTest extends TestCase
                 true,
                 false
             ),
-            'printCaption' => new CheckboxDefinition(
+            'printCaption' => new BooleanDefinition(
                 new MultiLang([
                     'en' => 'Print caption',
                     'ru' => 'Печатать заголовок',
