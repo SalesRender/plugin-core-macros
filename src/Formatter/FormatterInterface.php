@@ -10,9 +10,10 @@ namespace Leadvertex\Plugin\Export\Core\Formatter;
 use Leadvertex\Plugin\Export\Core\Components\ApiParams;
 use Leadvertex\Plugin\Export\Core\Components\BatchResult\BatchResultInterface;
 use Leadvertex\Plugin\Export\Core\Components\GenerateParams;
-use Leadvertex\Plugin\Export\Core\Components\MultiLang;
 use Leadvertex\Plugin\Export\Core\Components\StoredConfig;
 use Leadvertex\Plugin\Export\Core\Components\WebhookManager;
+use Leadvertex\Plugin\Scheme\Components\i18n;
+use Leadvertex\Plugin\Scheme\Scheme;
 
 interface FormatterInterface
 {
@@ -21,15 +22,20 @@ interface FormatterInterface
 
     /**
      * Should return human-friendly name of this exporter
-     * @return MultiLang
+     * @return i18n
      */
-    public static function getName(): MultiLang;
+    public static function getName(): i18n;
 
     /**
      * Should return human-friendly description of this exporter
-     * @return MultiLang
+     * @return i18n
      */
-    public static function getDescription(): MultiLang;
+    public static function getDescription(): i18n;
+
+    /**
+     * @return Type of entities, that can be exported by plugin
+     */
+    public function getType(): Type;
 
     /**
      * Should return scheme of exporter configs

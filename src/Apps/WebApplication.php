@@ -72,8 +72,8 @@ class WebApplication extends App
 
                 $name = substr(strrchr($classname, "\\"), 1);
                 $data[$name] = [
-                    'name' => $classname::getName()->getTranslations(),
-                    'description' => $classname::getDescription()->getTranslations(),
+                    'name' => $classname::getName()->toArray(),
+                    'description' => $classname::getDescription()->toArray(),
                 ];
             }
 
@@ -88,8 +88,8 @@ class WebApplication extends App
             $classname = "\Leadvertex\Plugin\Export\Format\\{$format}\\{$format}";
 
             return $response->withJson([
-                'name' => $classname::getName()->getTranslations(),
-                'description' => $classname::getDescription()->getTranslations(),
+                'name' => $classname::getName()->toArray(),
+                'description' => $classname::getDescription()->toArray(),
             ]);
         });
 
@@ -128,7 +128,7 @@ class WebApplication extends App
 
             $type = new Type($request->getParsedBodyParam('type'));
 
-            if (!$type->isEquals($formatter->getScheme()->getType())) {
+            if (!$type->isEquals($formatter->getType())) {
                 return $response->withJson(['valid' => false],405);
             }
 
