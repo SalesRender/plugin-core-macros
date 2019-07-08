@@ -8,7 +8,7 @@
 namespace Leadvertex\External\Export\Core\FieldDefinitions;
 
 
-class CheckboxDefinition extends FieldDefinition
+class BoolDefinition extends FieldDefinition
 {
 
     /**
@@ -16,7 +16,7 @@ class CheckboxDefinition extends FieldDefinition
      */
     public function definition(): string
     {
-        return 'checkbox';
+        return 'bool';
     }
 
     /**

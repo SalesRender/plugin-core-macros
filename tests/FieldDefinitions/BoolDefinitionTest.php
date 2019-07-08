@@ -7,10 +7,10 @@ use Exception;
 use Leadvertex\External\Export\Core\Components\MultiLang;
 use PHPUnit\Framework\TestCase;
 
-class CheckboxDefinitionTest extends TestCase
+class BoolDefinitionTest extends TestCase
 {
 
-    /** @var CheckboxDefinition */
+    /** @var BoolDefinition */
     private $checkboxDefinition;
 
     /** @var MultiLang */
@@ -44,7 +44,7 @@ class CheckboxDefinitionTest extends TestCase
         $this->default = 'Test value for default param';
         $this->required = true;
 
-        $this->checkboxDefinition = new CheckboxDefinition(
+        $this->checkboxDefinition = new BoolDefinition(
             $this->label,
             $this->description,
             $this->default,
@@ -54,7 +54,7 @@ class CheckboxDefinitionTest extends TestCase
 
     public function testDefinition()
     {
-        $this->assertEquals('checkbox', $this->checkboxDefinition->definition());
+        $this->assertEquals('bool', $this->checkboxDefinition->definition());
     }
 
     /**
@@ -66,7 +66,7 @@ class CheckboxDefinitionTest extends TestCase
      */
     public function testValidateValue(bool $required, $value, bool $expected)
     {
-        $definition = new CheckboxDefinition(
+        $definition = new BoolDefinition(
             $this->label,
             $this->description,
             $this->default,
