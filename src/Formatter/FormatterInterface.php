@@ -4,15 +4,15 @@
  * Datetime: 20.06.2019 17:43
  */
 
-namespace Leadvertex\External\Export\Core\Formatter;
+namespace Leadvertex\Plugin\Export\Core\Formatter;
 
 
-use Leadvertex\External\Export\Core\Components\ApiParams;
-use Leadvertex\External\Export\Core\Components\BatchResult\BatchResultInterface;
-use Leadvertex\External\Export\Core\Components\GenerateParams;
-use Leadvertex\External\Export\Core\Components\MultiLang;
-use Leadvertex\External\Export\Core\Components\StoredConfig;
-use Leadvertex\External\Export\Core\Components\WebhookManager;
+use Leadvertex\Plugin\Export\Core\Components\ApiParams;
+use Leadvertex\Plugin\Export\Core\Components\BatchResult\BatchResultInterface;
+use Leadvertex\Plugin\Export\Core\Components\GenerateParams;
+use Leadvertex\Plugin\Export\Core\Components\MultiLang;
+use Leadvertex\Plugin\Export\Core\Components\StoredConfig;
+use Leadvertex\Plugin\Export\Core\Components\WebhookManager;
 
 interface FormatterInterface
 {

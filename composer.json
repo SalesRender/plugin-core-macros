@@ -1,6 +1,6 @@
 {
-  "name": "leadvertex/lv-export-core",
-  "description": "LeadVertex data export app",
+  "name": "leadvertex/plugin-export-core",
+  "description": "LeadVertex data export plugin core",
   "type": "library",
   "minimum-stability": "stable",
   "license": "proprietary",
@@ -12,7 +12,7 @@
   ],
   "autoload": {
     "psr-4": {
-      "Leadvertex\\External\\Export\\Core\\": "src/"
+      "Leadvertex\\Plugin\\Export\\Core\\": "src/"
     }
   },
   "require": {
@@ -27,7 +27,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Leadvertex\\External\\Export\\Core\\": "tests/"
+      "Leadvertex\\Plugin\\Export\\Core\\": "tests/"
     }
   },
   "require-dev": {

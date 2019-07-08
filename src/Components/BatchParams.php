@@ -4,7 +4,7 @@
  * Datetime: 21.06.2019 22:02
  */
 
-namespace Leadvertex\External\Export\Core\Components;
+namespace Leadvertex\Plugin\Export\Core\Components;
 
 
 class BatchParams

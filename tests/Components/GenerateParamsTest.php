@@ -1,9 +1,9 @@
 <?php
 
-namespace Leadvertex\External\Export\Core\Components;
+namespace Leadvertex\Plugin\Export\Core\Components;
 
 
-use Leadvertex\External\Export\Core\Formatter\Type;
+use Leadvertex\Plugin\Export\Core\Formatter\Type;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 

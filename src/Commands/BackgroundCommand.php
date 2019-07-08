@@ -5,10 +5,10 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\External\Export\Core\Commands;
+namespace Leadvertex\Plugin\Export\Core\Commands;
 
 
-use Leadvertex\External\Export\Core\Components\DeferredRunner;
+use Leadvertex\Plugin\Export\Core\Components\DeferredRunner;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;

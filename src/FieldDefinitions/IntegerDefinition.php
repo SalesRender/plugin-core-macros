@@ -5,10 +5,10 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\External\Export\Core\FieldDefinitions;
+namespace Leadvertex\Plugin\Export\Core\FieldDefinitions;
 
 
-use Leadvertex\External\Export\Core\Components\MultiLang;
+use Leadvertex\Plugin\Export\Core\Components\MultiLang;
 
 class IntegerDefinition extends FieldDefinition
 {

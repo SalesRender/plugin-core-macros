@@ -4,10 +4,10 @@
  * Datetime: 20.06.2019 17:47
  */
 
-namespace Leadvertex\External\Export\Core\Components;
+namespace Leadvertex\Plugin\Export\Core\Components;
 
 
-use Leadvertex\External\Export\Core\Formatter\Type;
+use Leadvertex\Plugin\Export\Core\Formatter\Type;
 
 class GenerateParams
 {

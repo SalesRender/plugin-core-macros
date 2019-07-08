@@ -1,6 +1,6 @@
 <?php
 
-namespace Leadvertex\External\Export\Core\Components\BatchResult;
+namespace Leadvertex\Plugin\Export\Core\Components\BatchResult;
 
 
 use PHPUnit\Framework\TestCase;

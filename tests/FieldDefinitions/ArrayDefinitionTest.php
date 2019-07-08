@@ -1,11 +1,11 @@
 <?php
 
-namespace Leadvertex\External\Export\Core\FieldDefinitions;
+namespace Leadvertex\Plugin\Export\Core\FieldDefinitions;
 
 
 use Exception;
 use InvalidArgumentException;
-use Leadvertex\External\Export\Core\Components\MultiLang;
+use Leadvertex\Plugin\Export\Core\Components\MultiLang;
 use PHPUnit\Framework\TestCase;
 
 class ArrayDefinitionTest extends TestCase

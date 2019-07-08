@@ -1,6 +1,6 @@
 <?php
 
-namespace Leadvertex\External\Export\Core\Components;
+namespace Leadvertex\Plugin\Export\Core\Components;
 
 
 use InvalidArgumentException;

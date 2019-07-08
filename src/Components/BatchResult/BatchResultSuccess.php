@@ -5,7 +5,7 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\External\Export\Core\Components\BatchResult;
+namespace Leadvertex\Plugin\Export\Core\Components\BatchResult;
 
 
 class BatchResultSuccess implements BatchResultInterface

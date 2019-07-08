@@ -5,7 +5,7 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\External\Export\Core\FieldDefinitions;
+namespace Leadvertex\Plugin\Export\Core\FieldDefinitions;
 
 
 class BooleanDefinition extends FieldDefinition

@@ -4,13 +4,13 @@
  * Datetime: 21.06.2019 22:22
  */
 
-namespace Leadvertex\External\Export\Core\Components;
+namespace Leadvertex\Plugin\Export\Core\Components;
 
 
 use Exception;
-use Leadvertex\External\Export\Core\Components\BatchResult\BatchResultFailed;
-use Leadvertex\External\Export\Core\Exceptions\MismatchTypeException;
-use Leadvertex\External\Export\Core\Formatter\FormatterInterface;
+use Leadvertex\Plugin\Export\Core\Components\BatchResult\BatchResultFailed;
+use Leadvertex\Plugin\Export\Core\Exceptions\MismatchTypeException;
+use Leadvertex\Plugin\Export\Core\Formatter\FormatterInterface;
 use Webmozart\PathUtil\Path;
 
 class DeferredRunner

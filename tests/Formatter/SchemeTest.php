@@ -1,13 +1,13 @@
 <?php
 
-namespace Leadvertex\External\Export\Core\Formatter;
+namespace Leadvertex\Plugin\Export\Core\Formatter;
 
 
 use Exception;
-use Leadvertex\External\Export\Core\Components\Developer;
-use Leadvertex\External\Export\Core\Components\MultiLang;
-use Leadvertex\External\Export\Core\FieldDefinitions\IntegerDefinition;
-use Leadvertex\External\Export\Core\FieldDefinitions\StringDefinition;
+use Leadvertex\Plugin\Export\Core\Components\Developer;
+use Leadvertex\Plugin\Export\Core\Components\MultiLang;
+use Leadvertex\Plugin\Export\Core\FieldDefinitions\IntegerDefinition;
+use Leadvertex\Plugin\Export\Core\FieldDefinitions\StringDefinition;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 

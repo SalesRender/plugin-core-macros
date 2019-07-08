@@ -5,11 +5,11 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\External\Export\Core\Components;
+namespace Leadvertex\Plugin\Export\Core\Components;
 
 
 use GuzzleHttp\Client;
-use Leadvertex\External\Export\Core\Components\BatchResult\BatchResultInterface;
+use Leadvertex\Plugin\Export\Core\Components\BatchResult\BatchResultInterface;
 
 class WebhookManager
 {

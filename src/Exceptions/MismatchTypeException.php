@@ -5,7 +5,7 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\External\Export\Core\Exceptions;
+namespace Leadvertex\Plugin\Export\Core\Exceptions;
 
 
 use Exception;

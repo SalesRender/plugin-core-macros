@@ -5,11 +5,11 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\External\Export\Core\Formatter;
+namespace Leadvertex\Plugin\Export\Core\Formatter;
 
 
-use Leadvertex\External\Export\Core\Components\Developer;
-use Leadvertex\External\Export\Core\Components\MultiLang;
+use Leadvertex\Plugin\Export\Core\Components\Developer;
+use Leadvertex\Plugin\Export\Core\Components\MultiLang;
 use TypeError;
 
 class Scheme

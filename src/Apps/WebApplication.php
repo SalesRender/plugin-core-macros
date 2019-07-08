@@ -1,18 +1,18 @@
 <?php
 
 
-namespace Leadvertex\External\Export\Core\Apps;
+namespace Leadvertex\Plugin\Export\Core\Apps;
 
 
 use HaydenPierce\ClassFinder\ClassFinder;
-use Leadvertex\External\Export\Core\Components\ApiParams;
-use Leadvertex\External\Export\Core\Components\BatchParams;
-use Leadvertex\External\Export\Core\Components\ChunkedIds;
-use Leadvertex\External\Export\Core\Components\DeferredRunner;
-use Leadvertex\External\Export\Core\Components\GenerateParams;
-use Leadvertex\External\Export\Core\Components\StoredConfig;
-use Leadvertex\External\Export\Core\Formatter\Type;
-use Leadvertex\External\Export\Core\Formatter\FormatterInterface;
+use Leadvertex\Plugin\Export\Core\Components\ApiParams;
+use Leadvertex\Plugin\Export\Core\Components\BatchParams;
+use Leadvertex\Plugin\Export\Core\Components\ChunkedIds;
+use Leadvertex\Plugin\Export\Core\Components\DeferredRunner;
+use Leadvertex\Plugin\Export\Core\Components\GenerateParams;
+use Leadvertex\Plugin\Export\Core\Components\StoredConfig;
+use Leadvertex\Plugin\Export\Core\Formatter\Type;
+use Leadvertex\Plugin\Export\Core\Formatter\FormatterInterface;
 use Slim\App;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -20,7 +20,7 @@ use Webmozart\PathUtil\Path;
 
 /**
  * Class WebApplication
- * @package Leadvertex\External\Export\Core\Apps
+ * @package Leadvertex\Plugin\Export\Core\Apps
  *
  * @property bool $debugMode
  * @property string $runtimeDir
@@ -62,7 +62,7 @@ class WebApplication extends App
         //TODO prettify output
         $this->get('/', function (Request $request, Response $response, $args) {
             /** @var FormatterInterface[] $classes */
-            $classes = ClassFinder::getClassesInNamespace('Leadvertex\External\Export\Format', ClassFinder::RECURSIVE_MODE);
+            $classes = ClassFinder::getClassesInNamespace('Leadvertex\Plugin\Export\Format', ClassFinder::RECURSIVE_MODE);
 
             $data = [];
             foreach ($classes as $classname) {
@@ -85,7 +85,7 @@ class WebApplication extends App
             $format = $args['formatter'];
 
             /** @var FormatterInterface $classname */
-            $classname = "\Leadvertex\External\Export\Format\\{$format}\\{$format}";
+            $classname = "\Leadvertex\Plugin\Export\Format\\{$format}\\{$format}";
 
             return $response->withJson([
                 'name' => $classname::getName()->getTranslations(),
@@ -101,7 +101,7 @@ class WebApplication extends App
                 $request->getParsedBodyParam('api')['endpointUrl']
             );
 
-            $classname = "\Leadvertex\External\Export\Format\\{$format}\\{$format}";
+            $classname = "\Leadvertex\Plugin\Export\Format\\{$format}\\{$format}";
             /** @var FormatterInterface $formatter */
             $formatter = new $classname($apiParams, $this->runtimeDir, $this->publicDir, $this->publicUrl);
             return $response->withJson(
@@ -122,7 +122,7 @@ class WebApplication extends App
                 $request->getParsedBodyParam('config')
             );
 
-            $classname = "\Leadvertex\External\Export\Format\\{$format}\\{$format}";
+            $classname = "\Leadvertex\Plugin\Export\Format\\{$format}\\{$format}";
             /** @var FormatterInterface $formatter */
             $formatter = new $classname($apiParams, $this->runtimeDir, $this->publicDir, $this->publicUrl);
 
@@ -142,7 +142,7 @@ class WebApplication extends App
         $this->rpc('GENERATE', function (Request $request, Response $response, $args) {
 
             $format = $args['formatter'];
-            $classname = "\Leadvertex\External\Export\Format\\{$format}\\{$format}";
+            $classname = "\Leadvertex\Plugin\Export\Format\\{$format}\\{$format}";
 
             /** @var FormatterInterface $formatter */
             $formatter = new $classname(
