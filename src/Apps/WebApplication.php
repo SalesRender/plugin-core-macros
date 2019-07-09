@@ -105,7 +105,11 @@ class WebApplication extends App
             /** @var FormatterInterface $formatter */
             $formatter = new $classname($apiParams, $this->runtimeDir, $this->publicDir, $this->publicUrl);
             return $response->withJson(
-                $formatter->getScheme()->toArray(),
+                [
+                    'plugin' => 'EXPORT',
+                    'type' => $formatter->getType()->get(),
+                    'scheme' => $formatter->getScheme()->toArray(),
+                ],
                 200
             );
         });
