@@ -5,7 +5,7 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\Plugin\Export\Core\Commands;
+namespace Leadvertex\Plugin\Exporter\Core\Commands;
 
 
 use RecursiveDirectoryIterator;

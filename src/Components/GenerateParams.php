@@ -4,73 +4,75 @@
  * Datetime: 20.06.2019 17:47
  */
 
-namespace Leadvertex\Plugin\Export\Core\Components;
+namespace Leadvertex\Plugin\Exporter\Core\Components;
 
 
-use Leadvertex\Plugin\Export\Core\Formatter\Type;
+use Leadvertex\Plugin\Components\ApiClient\ApiFilterSortPaginate;
+use Leadvertex\Plugin\Components\Form\FormData;
+use Leadvertex\Plugin\Components\Process\Process;
 
 class GenerateParams
 {
     /**
-     * @var Type
+     * @var Entity
      */
-    private $type;
+    private $entity;
     /**
-     * @var StoredConfig
+     * @var FormData
      */
-    private $config;
+    private $formData;
     /**
-     * @var BatchParams
+     * @var Process
      */
-    private $batchParams;
+    private $process;
     /**
-     * @var ChunkedIds
+     * @var ApiFilterSortPaginate
      */
-    private $chunkedIds;
+    private $fsp;
 
     public function __construct(
-        Type $type,
-        StoredConfig $config,
-        BatchParams $batchParams,
-        ChunkedIds $chunkedIds
+        Process $process,
+        FormData $formData,
+        Entity $entity,
+        ApiFilterSortPaginate $fsp
     )
     {
-        $this->type = $type;
-        $this->config = $config;
-        $this->batchParams = $batchParams;
-        $this->chunkedIds = $chunkedIds;
+        $this->entity = $entity;
+        $this->formData = $formData;
+        $this->process = $process;
+        $this->fsp = $fsp;
     }
 
     /**
-     * @return Type
+     * @return Entity
      */
-    public function getType(): Type
+    public function getEntity(): Entity
     {
-        return $this->type;
+        return $this->entity;
     }
 
     /**
-     * @return StoredConfig
+     * @return FormData
      */
-    public function getConfig(): StoredConfig
+    public function getFormData(): FormData
     {
-        return $this->config;
+        return $this->formData;
     }
 
     /**
-     * @return BatchParams
+     * @return Process
      */
-    public function getBatchParams(): BatchParams
+    public function getProcess(): Process
     {
-        return $this->batchParams;
+        return $this->process;
     }
 
     /**
-     * @return ChunkedIds
+     * @return ApiFilterSortPaginate
      */
-    public function getChunkedIds(): ChunkedIds
+    public function getFsp(): ApiFilterSortPaginate
     {
-        return $this->chunkedIds;
+        return $this->fsp;
     }
 
 

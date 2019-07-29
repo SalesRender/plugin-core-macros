@@ -5,12 +5,12 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\Plugin\Export\Core\Formatter;
+namespace Leadvertex\Plugin\Exporter\Core\Components;
 
 
 use InvalidArgumentException;
 
-class Type
+class Entity
 {
 
     const ORDERS = 'ORDERS';

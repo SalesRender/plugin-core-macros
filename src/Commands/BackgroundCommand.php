@@ -5,10 +5,14 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\Plugin\Export\Core\Commands;
+namespace Leadvertex\Plugin\Exporter\Core\Commands;
 
 
-use Leadvertex\Plugin\Export\Core\Components\DeferredRunner;
+use Leadvertex\Plugin\Components\Serializer\Exceptions\InvalidUuidException;
+use Leadvertex\Plugin\Components\Serializer\Exceptions\NotFoundUuidException;
+use Leadvertex\Plugin\Components\Serializer\Serializer;
+use Leadvertex\Plugin\Exporter\Core\Components\GenerateParams;
+use Leadvertex\Plugin\Exporter\Core\FormatterInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -39,14 +43,29 @@ class BackgroundCommand extends Command
         $this
             ->setName('app:background')
             ->setDescription('Run generate operation in background')
-            ->addArgument('token', InputArgument::REQUIRED, 'Batch token');
+            ->addArgument('uuid', InputArgument::REQUIRED);
     }
 
+    /**
+     * @param InputInterface $input
+     * @param OutputInterface $output
+     * @return int|void|null
+     * @throws InvalidUuidException
+     * @throws NotFoundUuidException
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $tokensDir = Path::canonicalize("{$this->runtimeDir}/tokens");
-        $handler = new DeferredRunner($tokensDir);
-        $handler->run($input->getArgument('token'));
+        $tokensDir = Path::canonicalize("{$this->runtimeDir}/serializer");
+        $serializer = new Serializer($tokensDir);
+        $data = $serializer->unserialize($input->getArgument('uuid'));
+
+        /** @var FormatterInterface $formatter */
+        $formatter = $data['formatter'];
+
+        /** @var GenerateParams $generateParams */
+        $generateParams = $data['generateParams'];
+
+        $formatter->generate($generateParams);
     }
 
 }

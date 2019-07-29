@@ -1,18 +1,19 @@
 <?php
 
 
-namespace Leadvertex\Plugin\Export\Core\Apps;
+namespace Leadvertex\Plugin\Exporter\Core\Apps;
 
 
+use Cocur\BackgroundProcess\BackgroundProcess;
 use HaydenPierce\ClassFinder\ClassFinder;
-use Leadvertex\Plugin\Export\Core\Components\ApiParams;
-use Leadvertex\Plugin\Export\Core\Components\BatchParams;
-use Leadvertex\Plugin\Export\Core\Components\ChunkedIds;
-use Leadvertex\Plugin\Export\Core\Components\DeferredRunner;
-use Leadvertex\Plugin\Export\Core\Components\GenerateParams;
-use Leadvertex\Plugin\Export\Core\Components\StoredConfig;
-use Leadvertex\Plugin\Export\Core\Formatter\Type;
-use Leadvertex\Plugin\Export\Core\Formatter\FormatterInterface;
+use Leadvertex\Plugin\Components\ApiClient\ApiFilterSortPaginate;
+use Leadvertex\Plugin\Components\Process\Process;
+use Leadvertex\Plugin\Components\Serializer\Serializer;
+use Leadvertex\Plugin\Exporter\Core\Components\GenerateParams;
+use Leadvertex\Plugin\Exporter\Core\Components\Entity;
+use Leadvertex\Plugin\Exporter\Core\Exceptions\MismatchEntityException;
+use Leadvertex\Plugin\Exporter\Core\FormatterInterface;
+use Leadvertex\Plugin\Exporter\Core\Helpers\RequestHelper;
 use Slim\App;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -20,7 +21,7 @@ use Webmozart\PathUtil\Path;
 
 /**
  * Class WebApplication
- * @package Leadvertex\Plugin\Export\Core\Apps
+ * @package Leadvertex\Plugin\Exporter\Core\Apps
  *
  * @property bool $debugMode
  * @property string $runtimeDir
@@ -62,7 +63,7 @@ class WebApplication extends App
         //TODO prettify output
         $this->get('/', function (Request $request, Response $response, $args) {
             /** @var FormatterInterface[] $classes */
-            $classes = ClassFinder::getClassesInNamespace('Leadvertex\Plugin\Export\Format', ClassFinder::RECURSIVE_MODE);
+            $classes = ClassFinder::getClassesInNamespace('Leadvertex\Plugin\Exporter\Format', ClassFinder::RECURSIVE_MODE);
 
             $data = [];
             foreach ($classes as $classname) {
@@ -72,8 +73,8 @@ class WebApplication extends App
 
                 $name = substr(strrchr($classname, "\\"), 1);
                 $data[$name] = [
-                    'name' => $classname::getName()->toArray(),
-                    'description' => $classname::getDescription()->toArray(),
+                    'name' => $classname::getName()->get(),
+                    'description' => $classname::getDescription()->get(),
                 ];
             }
 
@@ -85,30 +86,27 @@ class WebApplication extends App
             $format = $args['formatter'];
 
             /** @var FormatterInterface $classname */
-            $classname = "\Leadvertex\Plugin\Export\Format\\{$format}\\{$format}";
+            $classname = "\Leadvertex\Plugin\Exporter\Format\\{$format}\\{$format}";
 
             return $response->withJson([
-                'name' => $classname::getName()->toArray(),
-                'description' => $classname::getDescription()->toArray(),
+                'name' => $classname::getName()->get(),
+                'description' => $classname::getDescription()->get(),
             ]);
         });
 
         $this->rpc('CONFIG', function (Request $request, Response $response, $args) {
             $format = $args['formatter'];
 
-            $apiParams = new ApiParams(
-                $request->getParsedBodyParam('api')['token'],
-                $request->getParsedBodyParam('api')['endpointUrl']
-            );
-
-            $classname = "\Leadvertex\Plugin\Export\Format\\{$format}\\{$format}";
+            $apiClient = RequestHelper::getApiParams($request);
+            $classname = "\Leadvertex\Plugin\Exporter\Format\\{$format}\\{$format}";
             /** @var FormatterInterface $formatter */
-            $formatter = new $classname($apiParams, $this->runtimeDir, $this->publicDir, $this->publicUrl);
+            $formatter = new $classname($apiClient, $this->runtimeDir, $this->publicDir, $this->publicUrl);
             return $response->withJson(
                 [
-                    'plugin' => 'EXPORT',
-                    'type' => $formatter->getType()->get(),
-                    'scheme' => $formatter->getScheme()->toArray(),
+                    'developer' => $formatter->getDeveloper()->toArray(),
+                    'class' => 'EXPORTER',
+                    'entity' => $formatter->getEntity()->get(),
+                    'form' => $formatter->getForm()->toArray(),
                 ],
                 200
             );
@@ -117,26 +115,19 @@ class WebApplication extends App
         $this->rpc('VALIDATE', function (Request $request, Response $response, $args) {
             $format = $args['formatter'];
 
-            $apiParams = new ApiParams(
-                $request->getParsedBodyParam('api')['token'],
-                $request->getParsedBodyParam('api')['endpointUrl']
-            );
+            $apiClient = RequestHelper::getApiParams($request);
+            $formData = RequestHelper::getFormDataConfig($request);
 
-            $config = new StoredConfig(
-                $request->getParsedBodyParam('config')
-            );
-
-            $classname = "\Leadvertex\Plugin\Export\Format\\{$format}\\{$format}";
+            $classname = "\Leadvertex\Plugin\Exporter\Format\\{$format}\\{$format}";
             /** @var FormatterInterface $formatter */
-            $formatter = new $classname($apiParams, $this->runtimeDir, $this->publicDir, $this->publicUrl);
+            $formatter = new $classname($apiClient, $this->runtimeDir, $this->publicDir, $this->publicUrl);
 
-            $type = new Type($request->getParsedBodyParam('type'));
-
-            if (!$type->isEquals($formatter->getType())) {
+            $entity = new Entity($request->getParsedBodyParam('entity'));
+            if (!$entity->isEquals($formatter->getEntity())) {
                 return $response->withJson(['valid' => false],405);
             }
 
-            if (!$formatter->isConfigValid($config)) {
+            if (!$formatter->getForm()->validateData($formData)) {
                 return $response->withJson(['valid' => false],400);
             }
 
@@ -146,48 +137,60 @@ class WebApplication extends App
         $this->rpc('GENERATE', function (Request $request, Response $response, $args) {
 
             $format = $args['formatter'];
-            $classname = "\Leadvertex\Plugin\Export\Format\\{$format}\\{$format}";
+            $classname = "\Leadvertex\Plugin\Exporter\Format\\{$format}\\{$format}";
 
             /** @var FormatterInterface $formatter */
             $formatter = new $classname(
-                new ApiParams(
-                    $request->getParsedBodyParam('api')['token'],
-                    $request->getParsedBodyParam('api')['endpointUrl']
-                ),
+                RequestHelper::getApiParams($request),
                 $this->runtimeDir,
                 $this->publicDir,
                 $this->publicUrl
             );
 
-            $batchToken = $request->getParsedBodyParam('batch')['token'];
-            $params = new GenerateParams(
-                new Type($request->getParsedBodyParam('type')),
-                new StoredConfig($request->getParsedBodyParam('config')),
-                new BatchParams(
-                    $batchToken,
-                    $request->getParsedBodyParam('batch')['progressWebhookUrl'],
-                    $request->getParsedBodyParam('batch')['resultWebhookUrl']
-                ),
-                new ChunkedIds($request->getParsedBodyParam('ids'))
+            $entity = new Entity($request->getParsedBodyParam('entity'));
+            if (!$entity->isEquals($formatter->getEntity())) {
+                throw new MismatchEntityException($formatter->getEntity(), $entity);
+            }
+
+            $processData = $request->getParsedBodyParam('process');
+            $process = new Process(
+                $processData['id'],
+                $processData['initUrl'],
+                $processData['successUrl'],
+                $processData['errorUrl'],
+                $processData['skipUrl'],
+                $processData['resultUrl']
+            );
+
+            $fspQuery = $request->getParsedBodyParam('query');
+            $fsp = new ApiFilterSortPaginate(
+                $fspQuery['filter'] ?? null,
+                $fspQuery['sort'] ?? null,
+                $fspQuery['pageSize'] ?? null
+            );
+
+            $generateParams = new GenerateParams(
+                $process,
+                RequestHelper::getFormDataConfig($request),
+                $entity,
+                $fsp
             );
 
             if ($this->debugMode) {
-                $formatter->generate($params);
+                $formatter->generate($generateParams);
                 return $response->withJson(['result' => true],200);
             }
 
-            $tokensDir = Path::canonicalize("{$this->runtimeDir}/tokens");
-            $handler = new DeferredRunner($tokensDir);
-            $handler->prepend($formatter, $params);
+            $serializerDir = Path::canonicalize("{$this->runtimeDir}/serializer");
+            $handler = new Serializer($serializerDir);
+            $uuid = $handler->serialize([
+                'formatter' => $formatter,
+                'generateParams' => $generateParams
+            ]);
 
-            $command = "php {$this->consoleScript} app:background {$batchToken}";
-
-            $isWindowsOS = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-            if ($isWindowsOS) {
-                pclose(popen("start /B {$command}", "r"));
-            } else {
-                exec("{$command} > /dev/null &");
-            }
+            $command = "php {$this->consoleScript} app:background {$uuid}";
+            $runner = new BackgroundProcess($command);
+            $runner->run();
 
             return $response->withJson(['result' => true],200);
         });

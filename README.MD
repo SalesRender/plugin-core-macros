@@ -22,7 +22,7 @@ Example of `index.php`
 <?php
 require_once __DIR__ . '/../const.php';
 
-$app = new Leadvertex\Plugin\Export\Core\Apps\WebApplication(
+$app = new Leadvertex\Plugin\Exporter\Core\Apps\WebApplication(
     LV_EXPORT_RUNTIME_DIR,
     LV_EXPORT_PUBLIC_DIR,
     LV_EXPORT_PUBLIC_URL,
@@ -39,7 +39,7 @@ Example of `console.php`
 <?php
 require_once __DIR__ . '/const.php';
 
-$application = new Leadvertex\Plugin\Export\Core\Apps\ConsoleApplication(
+$application = new Leadvertex\Plugin\Exporter\Core\Apps\ConsoleApplication(
     LV_EXPORT_RUNTIME_DIR,
     LV_EXPORT_PUBLIC_DIR
 );

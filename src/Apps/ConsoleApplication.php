@@ -1,9 +1,9 @@
 <?php
-namespace Leadvertex\Plugin\Export\Core\Apps;
+namespace Leadvertex\Plugin\Exporter\Core\Apps;
 
 
-use Leadvertex\Plugin\Export\Core\Commands\BackgroundCommand;
-use Leadvertex\Plugin\Export\Core\Commands\CleanUpCommand;
+use Leadvertex\Plugin\Exporter\Core\Commands\BackgroundCommand;
+use Leadvertex\Plugin\Exporter\Core\Commands\CleanUpCommand;
 use Symfony\Component\Console\Application;
 
 class ConsoleApplication extends Application
