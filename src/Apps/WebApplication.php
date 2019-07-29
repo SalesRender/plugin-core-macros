@@ -7,6 +7,7 @@ namespace Leadvertex\Plugin\Exporter\Core\Apps;
 use Cocur\BackgroundProcess\BackgroundProcess;
 use HaydenPierce\ClassFinder\ClassFinder;
 use Leadvertex\Plugin\Components\ApiClient\ApiFilterSortPaginate;
+use Leadvertex\Plugin\Components\ApiClient\ApiSort;
 use Leadvertex\Plugin\Components\Process\Process;
 use Leadvertex\Plugin\Components\Serializer\Serializer;
 use Leadvertex\Plugin\Exporter\Core\Components\GenerateParams;
@@ -163,9 +164,15 @@ class WebApplication extends App
             );
 
             $fspQuery = $request->getParsedBodyParam('query');
+            if (isset($fspQuery['field']) && isset($fspQuery['direction'])) {
+                $sort = new ApiSort($fspQuery['field'], $fspQuery['direction']);
+            } else {
+                $sort = null;
+            }
+
             $fsp = new ApiFilterSortPaginate(
                 $fspQuery['filter'] ?? null,
-                $fspQuery['sort'] ?? null,
+                $sort,
                 $fspQuery['pageSize'] ?? null
             );
 
