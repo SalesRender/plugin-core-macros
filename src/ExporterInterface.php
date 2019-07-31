@@ -9,12 +9,12 @@ namespace Leadvertex\Plugin\Exporter\Core;
 
 use Leadvertex\Plugin\Components\ApiClient\ApiClient;
 use Leadvertex\Plugin\Components\Developer\Developer;
-use Leadvertex\Plugin\Exporter\Core\Components\Entity;
+use Leadvertex\Plugin\Components\Purpose\PluginEntity;
 use Leadvertex\Plugin\Exporter\Core\Components\GenerateParams;
 use Leadvertex\Plugin\Components\Form\Form;
 use Leadvertex\Plugin\Components\I18n\I18nInterface;
 
-interface FormatterInterface
+interface ExporterInterface
 {
 
     public function __construct(ApiClient $apiClient, string $runtimeDir, string $publicDir, string $publicUrl);
@@ -32,9 +32,9 @@ interface FormatterInterface
     public static function getDescription(): I18nInterface;
 
     /**
-     * @return Entity of entities, that can be exported by plugin
+     * @return PluginEntity of entities, that can be exported by plugin
      */
-    public function getEntity(): Entity;
+    public function getEntity(): PluginEntity;
 
     /**
      * @return Developer

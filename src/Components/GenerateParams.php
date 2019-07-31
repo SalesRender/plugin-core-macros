@@ -14,10 +14,6 @@ use Leadvertex\Plugin\Components\Process\Process;
 class GenerateParams
 {
     /**
-     * @var Entity
-     */
-    private $entity;
-    /**
      * @var FormData
      */
     private $formData;
@@ -33,22 +29,12 @@ class GenerateParams
     public function __construct(
         Process $process,
         FormData $formData,
-        Entity $entity,
         ApiFilterSortPaginate $fsp
     )
     {
-        $this->entity = $entity;
         $this->formData = $formData;
         $this->process = $process;
         $this->fsp = $fsp;
-    }
-
-    /**
-     * @return Entity
-     */
-    public function getEntity(): Entity
-    {
-        return $this->entity;
     }
 
     /**

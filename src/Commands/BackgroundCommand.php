@@ -12,7 +12,7 @@ use Leadvertex\Plugin\Components\Serializer\Exceptions\InvalidUuidException;
 use Leadvertex\Plugin\Components\Serializer\Exceptions\NotFoundUuidException;
 use Leadvertex\Plugin\Components\Serializer\Serializer;
 use Leadvertex\Plugin\Exporter\Core\Components\GenerateParams;
-use Leadvertex\Plugin\Exporter\Core\FormatterInterface;
+use Leadvertex\Plugin\Exporter\Core\ExporterInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -59,13 +59,13 @@ class BackgroundCommand extends Command
         $serializer = new Serializer($tokensDir);
         $data = $serializer->unserialize($input->getArgument('uuid'));
 
-        /** @var FormatterInterface $formatter */
-        $formatter = $data['formatter'];
+        /** @var ExporterInterface $exporter */
+        $exporter = $data['exporter'];
 
         /** @var GenerateParams $generateParams */
         $generateParams = $data['generateParams'];
 
-        $formatter->generate($generateParams);
+        $exporter->generate($generateParams);
     }
 
 }
