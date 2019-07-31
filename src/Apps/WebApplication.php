@@ -10,15 +10,14 @@ use Slim\App;
 
 class WebApplication extends App
 {
-    use EnvironmentTrait;
+    use ConfigTrait;
 
-    public function __construct(string $appDir)
+    public function __construct()
     {
-        $this->loadEnvironment($appDir);
-
+        $this->checkConfig();
         parent::__construct([
             'settings' => [
-                'displayErrorDetails' => getenv('LV_EXPORT_DEBUG'),
+                'displayErrorDetails' => constant('LV_EXPORT_DEBUG'),
                 'addContentLengthHeader' => true,
             ],
         ]);

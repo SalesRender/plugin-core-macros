@@ -42,11 +42,11 @@ class ExporterController
 
     public function __construct()
     {
-        $this->runtimeDir = getenv('LV_EXPORT_RUNTIME_DIR');
-        $this->publicDir = getenv('LV_EXPORT_PUBLIC_DIR');
-        $this->publicUrl = getenv('LV_EXPORT_PUBLIC_URL');
-        $this->consoleScript = getenv('LV_EXPORT_CONSOLE_SCRIPT');
-        $this->debugMode = getenv('LV_EXPORT_DEBUG');
+        $this->runtimeDir = constant('LV_EXPORT_RUNTIME_DIR');
+        $this->publicDir = constant('LV_EXPORT_PUBLIC_DIR');
+        $this->publicUrl = constant('LV_EXPORT_PUBLIC_URL');
+        $this->consoleScript = constant('LV_EXPORT_CONSOLE_SCRIPT');
+        $this->debugMode = constant('LV_EXPORT_DEBUG');
     }
 
     /**

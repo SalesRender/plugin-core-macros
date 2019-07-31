@@ -9,15 +9,15 @@ use Symfony\Component\Console\Application;
 class ConsoleApplication extends Application
 {
 
-    use EnvironmentTrait;
+    use ConfigTrait;
 
-    public function __construct(string $appDir)
+    public function __construct()
     {
+        $this->checkConfig();
         parent::__construct();
-        $this->loadEnvironment($appDir);
 
-        $runtimeDir = getenv('LV_EXPORT_RUNTIME_DIR');
-        $outputDir = getenv('LV_EXPORT_PUBLIC_DIR');
+        $runtimeDir = constant('LV_EXPORT_RUNTIME_DIR');
+        $outputDir = constant('LV_EXPORT_PUBLIC_DIR');
 
         $this->add(new CleanUpCommand([$runtimeDir, $outputDir]));
         $this->add(new BackgroundCommand($runtimeDir, $outputDir));

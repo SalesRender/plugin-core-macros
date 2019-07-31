@@ -8,22 +8,26 @@
 namespace Leadvertex\Plugin\Exporter\Core\Apps;
 
 
-use Dotenv\Dotenv;
+use RuntimeException;
 
-trait EnvironmentTrait
+trait ConfigTrait
 {
 
-    private function loadEnvironment(string $appDir)
+    private function checkConfig()
     {
-        $env = Dotenv::create($appDir);
-        $env->required([
+        $constants = [
             'LV_EXPORT_RUNTIME_DIR',
             'LV_EXPORT_PUBLIC_DIR',
             'LV_EXPORT_PUBLIC_URL',
             'LV_EXPORT_CONSOLE_SCRIPT',
             'LV_EXPORT_DEBUG',
-        ]);
-        $env->load();
+        ];
+
+        foreach ($constants as $constant) {
+            if (!defined($constant)) {
+                throw new RuntimeException("Constant {$constant} is not defined");
+            }
+        }
     }
 
 }

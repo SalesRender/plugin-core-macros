@@ -11,23 +11,13 @@ namespace Leadvertex\Plugin\Exporter\Core\Controllers;
 use Exception;
 use HaydenPierce\ClassFinder\ClassFinder;
 use Leadvertex\Plugin\Exporter\Core\ExporterInterface;
-use Psr\Container\ContainerInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
 
 class OverviewController
 {
+
     //TODO prettify output
-
-    /**
-     * @var ContainerInterface
-     */
-    private $container;
-
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
 
     /**
      * @param Request $request
