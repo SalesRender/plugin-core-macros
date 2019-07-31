@@ -24,11 +24,10 @@
     "webmozart/path-util": "^2.3",
     "guzzlehttp/guzzle": "^6.3",
     "haydenpierce/class-finder": "^0.3.2",
+    "cocur/background-process": "^0.7.0",
     "leadvertex/plugin-component-form": "^0.5.0",
     "leadvertex/plugin-component-developer": "^0.0.2",
-    "leadvertex/plugin-component-process": "^0.0.3",
-    "leadvertex/plugin-component-api-client": "^0.0.5",
-    "cocur/background-process": "^0.7.0",
+    "leadvertex/plugin-component-api-client": "^0.1",
     "leadvertex/plugin-component-serializer": "^0.0.1"
   },
   "require-dev": {
