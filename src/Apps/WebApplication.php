@@ -157,7 +157,7 @@ class WebApplication extends App
             $process = new Process(
                 $processData['id'],
                 $processData['initUrl'],
-                $processData['successUrl'],
+                $processData['handleUrl'],
                 $processData['errorUrl'],
                 $processData['skipUrl'],
                 $processData['resultUrl']
