@@ -63,11 +63,13 @@ class ExporterController
 
         return $response->withJson(
             [
-                'developer' => $exporter->getDeveloper()->toArray(),
                 'purpose' => [
                     'class' => PluginClass::CLASS_EXPORTER,
                     'entity' => $exporter->getEntity()->get(),
                 ],
+                'name' => $exporter::getName()->get(),
+                'description' => $exporter::getDescription()->get(),
+                'developer' => $exporter->getDeveloper()->toArray(),
                 'languages' => $exporter::getLanguages(),
                 'form' => $exporter->getForm()->toArray(),
             ],
