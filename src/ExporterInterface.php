@@ -20,6 +20,12 @@ interface ExporterInterface
     public function __construct(ApiClient $apiClient, string $runtimeDir, string $publicDir, string $publicUrl);
 
     /**
+     * @see \Leadvertex\Plugin\Components\I18n\I18nInterface::getLanguages
+     * @return array
+     */
+    public static function getLanguages(): array;
+
+    /**
      * Should return human-friendly name of this exporter
      * @return I18nInterface
      */

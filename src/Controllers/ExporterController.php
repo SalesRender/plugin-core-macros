@@ -68,6 +68,7 @@ class ExporterController
                     'class' => PluginClass::CLASS_EXPORTER,
                     'entity' => $exporter->getEntity()->get(),
                 ],
+                'languages' => $exporter::getLanguages(),
                 'form' => $exporter->getForm()->toArray(),
             ],
             200
