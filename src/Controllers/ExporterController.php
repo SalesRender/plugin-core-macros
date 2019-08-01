@@ -70,7 +70,10 @@ class ExporterController
                 'name' => $exporter::getName()->get(),
                 'description' => $exporter::getDescription()->get(),
                 'developer' => $exporter->getDeveloper()->toArray(),
-                'languages' => $exporter::getLanguages(),
+                'languages' => [
+                    'list' => $exporter::getLanguages(),
+                    'default' => $exporter::getDefaultLanguage(),
+                ],
                 'form' => $exporter->getForm()->toArray(),
             ],
             200

@@ -26,6 +26,14 @@ interface ExporterInterface
     public static function getLanguages(): array;
 
     /**
+     * Default language, that will be used when user language does't supported by your plugin
+     * @see \Leadvertex\Plugin\Components\I18n\I18nInterface
+     * @see https://en.wikipedia.org/wiki/ISO_639-1
+     * @return string alpha-2 language code, for example: 'en', 'ru', etc
+     */
+    public static function getDefaultLanguage(): string;
+
+    /**
      * Should return human-friendly name of this exporter
      * @return I18nInterface
      */
