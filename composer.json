@@ -19,7 +19,7 @@
     "php": ">=7.1.0",
     "ext-json": "*",
     "haydenpierce/class-finder": "^0.3.3",
-    "leadvertex/plugin-core": "^0.1.1"
+    "leadvertex/plugin-core": "^0.2"
   },
   "require-dev": {
     "phpunit/phpunit": "^8.2"
