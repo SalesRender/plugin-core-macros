@@ -11,6 +11,8 @@ namespace Leadvertex\Plugin\Exporter\Core\Commands;
 use Leadvertex\Plugin\Components\Serializer\Exceptions\InvalidUuidException;
 use Leadvertex\Plugin\Components\Serializer\Exceptions\NotFoundUuidException;
 use Leadvertex\Plugin\Components\Serializer\Serializer;
+use Leadvertex\Plugin\Core\Helpers\ComponentFactory;
+use Leadvertex\Plugin\Exporter\Core\Components\ExporterFactory;
 use Leadvertex\Plugin\Exporter\Core\Components\GenerateParams;
 use Leadvertex\Plugin\Exporter\Core\ExporterInterface;
 use Symfony\Component\Console\Command\Command;
@@ -55,15 +57,21 @@ class BackgroundCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $tokensDir = Path::canonicalize("{$this->runtimeDir}/serializer");
-        $serializer = new Serializer($tokensDir);
+        $serializerDir = Path::canonicalize("{$this->runtimeDir}/serializer");
+        $serializer = new Serializer($serializerDir);
         $data = $serializer->unserialize($input->getArgument('uuid'));
 
-        /** @var ExporterInterface $exporter */
-        $exporter = $data['exporter'];
+        $name = $data['name'];
+        $factory = new ComponentFactory($data['query']);
 
-        /** @var GenerateParams $generateParams */
-        $generateParams = $data['generateParams'];
+        /** @var ExporterInterface $exporter */
+        $exporter = ExporterFactory::create($name, $factory->getApiClient('api'));
+
+        $generateParams = new GenerateParams(
+            $factory->getProcess('process'),
+            $factory->getFormData('data'),
+            $factory->getFsp('query')
+        );
 
         $exporter->generate($generateParams);
     }

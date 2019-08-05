@@ -9,14 +9,13 @@ namespace Leadvertex\Plugin\Exporter\Core\Controllers;
 
 
 use Cocur\BackgroundProcess\BackgroundProcess;
-use Leadvertex\Plugin\Components\ApiClient\ApiClient;
 use Leadvertex\Plugin\Components\Purpose\PluginClass;
 use Leadvertex\Plugin\Components\Purpose\PluginPurpose;
 use Leadvertex\Plugin\Components\Serializer\Serializer;
 use Leadvertex\Plugin\Core\Exceptions\MismatchPurpose;
-use Leadvertex\Plugin\Core\Helpers\PluginRequest;
+use Leadvertex\Plugin\Core\Helpers\ComponentFactory;
+use Leadvertex\Plugin\Exporter\Core\Components\ExporterFactory;
 use Leadvertex\Plugin\Exporter\Core\Components\GenerateParams;
-use Leadvertex\Plugin\Exporter\Core\ExporterInterface;
 use Slim\Http\Request;
 use Slim\Http\Response;
 use Webmozart\PathUtil\Path;
@@ -29,12 +28,6 @@ class ExporterController
     private $runtimeDir;
 
     /** @var string */
-    private $publicDir;
-
-    /** @var string */
-    private $publicUrl;
-
-    /** @var string */
     private $consoleScript;
 
     /** @var bool */
@@ -43,8 +36,6 @@ class ExporterController
     public function __construct()
     {
         $this->runtimeDir = constant('LV_EXPORT_RUNTIME_DIR');
-        $this->publicDir = constant('LV_EXPORT_PUBLIC_DIR');
-        $this->publicUrl = constant('LV_EXPORT_PUBLIC_URL');
         $this->consoleScript = constant('LV_EXPORT_CONSOLE_SCRIPT');
         $this->debugMode = constant('LV_EXPORT_DEBUG');
     }
@@ -57,9 +48,9 @@ class ExporterController
      */
     public function load(Request $request, Response $response, $args)
     {
-        $pluginRequest = new PluginRequest($request);
+        $factory = new ComponentFactory($request->getParsedBody());
         $name = $args['exporter'];
-        $exporter = $this->getExporter($name, $pluginRequest->getApiClient('api'));
+        $exporter = ExporterFactory::create($name, $factory->getApiClient('api'));
 
         return $response->withJson(
             [
@@ -89,11 +80,11 @@ class ExporterController
      */
     public function check(Request $request, Response $response, $args)
     {
-        $pluginRequest = new PluginRequest($request);
+        $factory = new ComponentFactory($request->getParsedBody());
         $name = $args['exporter'];
-        $exporter = $this->getExporter($name, $pluginRequest->getApiClient('api'));
+        $exporter = ExporterFactory::create($name, $factory->getApiClient('api'));
 
-        $requestPurpose = $pluginRequest->getPurpose('purpose');
+        $requestPurpose = $factory->getPurpose('purpose');
         $pluginPurpose = new PluginPurpose(
             new PluginClass(PluginClass::CLASS_EXPORTER),
             $exporter->getEntity()
@@ -103,7 +94,7 @@ class ExporterController
             return $response->withJson(['valid' => false],405);
         }
 
-        $formData = $pluginRequest->getFormData('data');
+        $formData = $factory->getFormData('data');
         if (!$exporter->getForm()->validateData($formData)) {
             return $response->withJson(['valid' => false],400);
         }
@@ -121,11 +112,11 @@ class ExporterController
      */
     public function export(Request $request, Response $response, $args)
     {
-        $pluginRequest = new PluginRequest($request);
+        $factory = new ComponentFactory($request->getParsedBody());
         $name = $args['exporter'];
-        $exporter = $this->getExporter($name, $pluginRequest->getApiClient('api'));
+        $exporter = ExporterFactory::create($name, $factory->getApiClient('api'));
 
-        $requestPurpose = $pluginRequest->getPurpose('purpose');
+        $requestPurpose = $factory->getPurpose('purpose');
         $pluginPurpose = new PluginPurpose(
             new PluginClass(PluginClass::CLASS_EXPORTER),
             $exporter->getEntity()
@@ -135,22 +126,22 @@ class ExporterController
             throw new MismatchPurpose('Mismatch real plugin class & entity with data from request');
         }
 
-        $generateParams = new GenerateParams(
-            $pluginRequest->getProcess('process'),
-            $pluginRequest->getFormData('data'),
-            $pluginRequest->getFsp('query')
-        );
-
         if ($this->debugMode) {
+
+            $generateParams = new GenerateParams(
+                $factory->getProcess('process'),
+                $factory->getFormData('data'),
+                $factory->getFsp('query')
+            );
+
             $exporter->generate($generateParams);
             return $response->withJson(['result' => true],200);
         }
 
-        $serializerDir = Path::canonicalize("{$this->runtimeDir}/serializer");
-        $handler = new Serializer($serializerDir);
-        $uuid = $handler->serialize([
-            'exporter' => $exporter,
-            'generateParams' => $generateParams
+        $serializer = new Serializer(Path::canonicalize("{$this->runtimeDir}/serializer"));
+        $uuid = $serializer->serialize([
+            'name' => $name,
+            'query' => $request->getParsedBody()
         ]);
 
         $command = "php {$this->consoleScript} app:background {$uuid}";
@@ -158,17 +149,6 @@ class ExporterController
         $runner->run();
 
         return $response->withJson(['result' => true],200);
-    }
-
-    private function getExporter(string $name, ApiClient $client): ExporterInterface
-    {
-        $classname = "\Leadvertex\Plugin\Exporter\Handler\\{$name}\\{$name}";
-        return new $classname(
-            $client,
-            $this->runtimeDir,
-            $this->publicDir,
-            $this->publicUrl
-        );
     }
 
 }
