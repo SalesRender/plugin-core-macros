@@ -1,18 +1,18 @@
 <?php
 /**
- * Created for plugin-export-core
+ * Created for plugin-core
  * Datetime: 31.07.2019 18:16
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\Plugin\Exporter\Core\Controllers;
+namespace Leadvertex\Plugin\Handler\Controllers;
 
 
 use Exception;
 use HaydenPierce\ClassFinder\ClassFinder;
-use Leadvertex\Plugin\Exporter\Core\ExporterInterface;
-use Slim\Http\Request;
-use Slim\Http\Response;
+use Leadvertex\Plugin\Handler\PluginInterface;
+use Slim\Psr7\Request;
+use Slim\Psr7\Response;
 
 class OverviewController
 {
@@ -27,12 +27,12 @@ class OverviewController
      */
     public function index(Request $request, Response $response)
     {
-        /** @var ExporterInterface[] $classes */
-        $classes = ClassFinder::getClassesInNamespace('Leadvertex\Plugin\Exporter\Handler', ClassFinder::RECURSIVE_MODE);
+        /** @var PluginInterface[] $classes */
+        $classes = ClassFinder::getClassesInNamespace('Leadvertex\Plugin\Handler', ClassFinder::RECURSIVE_MODE);
 
         $data = [];
         foreach ($classes as $classname) {
-            if (!is_a($classname, ExporterInterface::class, true)) {
+            if (!is_a($classname, PluginInterface::class, true)) {
                 continue;
             }
 
@@ -43,7 +43,7 @@ class OverviewController
             ];
         }
 
-        return $response->withJson($data);
+        return $this->asJson($response, $data);
     }
 
     /**
@@ -52,17 +52,26 @@ class OverviewController
      * @param array $args
      * @return Response
      */
-    public function exporter(Request $request, Response $response, $args)
+    public function handler(Request $request, Response $response, $args)
     {
-        $format = $args['exporter'];
+        $format = $args['handler'];
 
-        /** @var ExporterInterface $classname */
-        $classname = "\Leadvertex\Plugin\Exporter\Handler\\{$format}\\{$format}";
+        /** @var PluginInterface $classname */
+        $classname = "\Leadvertex\Plugin\Handler\\{$format}\\{$format}";
 
-        return $response->withJson([
+        return $this->asJson($response, [
             'name' => $classname::getName()->get(),
             'description' => $classname::getDescription()->get(),
         ]);
+    }
+
+    private function asJson(Response $response, array $data, int $code = 200): Response
+    {
+        $payload = json_encode($data);
+        $response->getBody()->write($payload);
+        return $response
+            ->withHeader('Content-Type', 'application/json')
+            ->withStatus($code);
     }
 
 }

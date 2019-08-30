@@ -4,14 +4,14 @@
  * Datetime: 20.06.2019 17:47
  */
 
-namespace Leadvertex\Plugin\Exporter\Core\Components;
+namespace Leadvertex\Plugin\Handler\Components;
 
 
 use Leadvertex\Plugin\Components\ApiClient\ApiFilterSortPaginate;
 use Leadvertex\Plugin\Components\Form\FormData;
 use Leadvertex\Plugin\Components\Process\Process;
 
-class GenerateParams
+class HandleParams
 {
     /**
      * @var FormData
@@ -28,11 +28,12 @@ class GenerateParams
 
     public function __construct(
         Process $process,
-        FormData $formData,
+        FormData $settingsFormData,
+        FormData $optionsFormData,
         ApiFilterSortPaginate $fsp
     )
     {
-        $this->formData = $formData;
+        $this->formData = $settingsFormData;
         $this->process = $process;
         $this->fsp = $fsp;
     }

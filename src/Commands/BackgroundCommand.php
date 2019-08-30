@@ -1,20 +1,20 @@
 <?php
 /**
- * Created for plugin-export-core.
+ * Created for plugin-core.
  * Datetime: 03.07.2018 14:41
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\Plugin\Exporter\Core\Commands;
+namespace Leadvertex\Plugin\Handler\Commands;
 
 
 use Leadvertex\Plugin\Components\Serializer\Exceptions\InvalidUuidException;
 use Leadvertex\Plugin\Components\Serializer\Exceptions\NotFoundUuidException;
 use Leadvertex\Plugin\Components\Serializer\Serializer;
-use Leadvertex\Plugin\Core\Helpers\ComponentFactory;
-use Leadvertex\Plugin\Exporter\Core\Components\ExporterFactory;
-use Leadvertex\Plugin\Exporter\Core\Components\GenerateParams;
-use Leadvertex\Plugin\Exporter\Core\ExporterInterface;
+use Leadvertex\Plugin\Handler\Factories\ComponentFactory;
+use Leadvertex\Plugin\Handler\Components\PluginFactory;
+use Leadvertex\Plugin\Handler\Components\HandleParams;
+use Leadvertex\Plugin\Handler\PluginInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -44,7 +44,7 @@ class BackgroundCommand extends Command
     {
         $this
             ->setName('app:background')
-            ->setDescription('Run generate operation in background')
+            ->setDescription('Run handle operation in background')
             ->addArgument('uuid', InputArgument::REQUIRED);
     }
 
@@ -64,16 +64,17 @@ class BackgroundCommand extends Command
         $name = $data['name'];
         $factory = new ComponentFactory($data['query']);
 
-        /** @var ExporterInterface $exporter */
-        $exporter = ExporterFactory::create($name, $factory->getApiClient('api'));
+        /** @var PluginInterface $plugin */
+        $plugin = PluginFactory::create($name, $factory->getApiClient('api'));
 
-        $generateParams = new GenerateParams(
+        $handleParams = new HandleParams(
             $factory->getProcess('process'),
-            $factory->getFormData('data'),
+            $factory->getFormData('settings'),
+            $factory->getFormData('options'),
             $factory->getFsp('query')
         );
 
-        $exporter->generate($generateParams);
+        $plugin->handle($handleParams);
     }
 
 }

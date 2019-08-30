@@ -10,11 +10,11 @@ Define a few constants in `const.php`
 require_once __DIR__ . '/vendor/autoload.php';
 use Webmozart\PathUtil\Path;
 
-define('LV_EXPORT_RUNTIME_DIR', Path::canonicalize(__DIR__ . '/runtime'));
-define('LV_EXPORT_PUBLIC_DIR', Path::canonicalize(__DIR__ . '/public/compiled'));
-define('LV_EXPORT_PUBLIC_URL', 'http://example.com/compiled');
-define('LV_EXPORT_CONSOLE_SCRIPT', Path::canonicalize(__DIR__ . '/console.php'));
-define('LV_EXPORT_DEBUG', false);
+define('LV_PLUGIN_DIR_RUNTIME', Path::canonicalize(__DIR__ . '/runtime'));
+define('LV_PLUGIN_DIR_PUBLIC', Path::canonicalize(__DIR__ . '/public/compiled'));
+define('LV_PLUGIN_URL_PUBLIC', 'http://example.com/compiled');
+define('LV_PLUGIN_CONSOLE_SCRIPT', Path::canonicalize(__DIR__ . '/console.php'));
+define('LV_PLUGIN_DEBUG', false);
 ```
 
 Example of `index.php`
@@ -22,14 +22,8 @@ Example of `index.php`
 <?php
 require_once __DIR__ . '/../const.php';
 
-$app = new Leadvertex\Plugin\Exporter\Core\Apps\WebApplication(
-    LV_EXPORT_RUNTIME_DIR,
-    LV_EXPORT_PUBLIC_DIR,
-    LV_EXPORT_PUBLIC_URL,
-    LV_EXPORT_CONSOLE_SCRIPT,
-    LV_EXPORT_DEBUG
-);
-
+/** @var App $app */
+$app = \Leadvertex\Plugin\Handlers\Factories\AppFactory::web();
 $app->run();
 ```
 
@@ -39,9 +33,7 @@ Example of `console.php`
 <?php
 require_once __DIR__ . '/const.php';
 
-$application = new Leadvertex\Plugin\Exporter\Core\Apps\ConsoleApplication(
-    LV_EXPORT_RUNTIME_DIR,
-    LV_EXPORT_PUBLIC_DIR
-);
+/** @var Application $application */
+$application = \Leadvertex\Plugin\Handlers\Factories\AppFactory::console();
 $application->run();
 ```
