@@ -9,14 +9,10 @@ namespace Leadvertex\Plugin\Handler\Controllers;
 
 
 use Cocur\BackgroundProcess\BackgroundProcess;
-use Leadvertex\Plugin\Components\Purpose\PluginClass;
-use Leadvertex\Plugin\Components\Purpose\PluginPurpose;
 use Leadvertex\Plugin\Components\Serializer\Serializer;
-use Leadvertex\Plugin\Handler\Exceptions\InvalidFormDataException;
 use Leadvertex\Plugin\Handler\Exceptions\MismatchPurpose;
 use Leadvertex\Plugin\Handler\Factories\ComponentFactory;
-use Leadvertex\Plugin\Handler\Components\PluginFactory;
-use Leadvertex\Plugin\Handler\Components\HandleParams;
+use Leadvertex\Plugin\Handler\Factories\PluginFactory;
 use Leadvertex\Plugin\Handler\PluginInterface;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
@@ -96,28 +92,29 @@ class PluginController
                 'list' => $plugin::getLanguages(),
                 'default' => $plugin::getDefaultLanguage(),
             ],
-            'settings' => $plugin->getSettingsForm() ? $plugin->getSettingsForm()->toArray() : null,
+            'settings' => $plugin->hasSettingsForm() ? $plugin->getSettingsForm()->toArray() : null,
         ]);
     }
 
     /**
      * @return Response
-     * @throws InvalidFormDataException
      * @throws MismatchPurpose
      * @throws OutOfEnumException
      */
-    public function loadHandleForm()
+    public function loadOptionsForm()
     {
         $plugin = $this->plugin;
         $this->guardPurpose();
 
-        $formData = $this->factory->getFormData('settings');
-        if (!$plugin->getSettingsForm()->setData($formData)) {
-            throw new InvalidFormDataException('Invalid settings-form data');
+        $options = null;
+        if ($plugin->hasOptionsForm()) {
+            $settingsFormData = $this->factory->getFormData('settings');
+            $fsp = $this->factory->getFsp('query');
+            $options = $plugin->getOptionsForm($settingsFormData, $fsp);
         }
 
         return $this->asJson([
-            'options' => $plugin->getOptionsForm() ? $plugin->getOptionsForm()->toArray() : null
+            'options' => $options
         ]);
     }
 
@@ -140,18 +137,10 @@ class PluginController
         }
 
         $settingsData = $factory->getFormData('settings');
-        if (!$plugin->getSettingsForm()->validateData($settingsData)) {
+        if ($plugin->hasSettingsForm() && !$plugin->getSettingsForm()->validateData($settingsData)) {
             return $this->asJson([
                 'valid' => false,
                 'error' => 'Invalid settings form data',
-            ], 400);
-        }
-
-        $optionsData = $factory->getFormData('options');
-        if (!$plugin->getOptionsForm()->validateData($optionsData)) {
-            return $this->asJson([
-                'valid' => false,
-                'error' => 'Invalid options form data',
             ], 400);
         }
 
@@ -171,14 +160,12 @@ class PluginController
         $this->guardPurpose();
 
         if ($this->debugMode) {
-            $generateParams = new HandleParams(
+            $plugin->handle(
                 $factory->getProcess('process'),
                 $factory->getFormData('settings'),
                 $factory->getFormData('options'),
                 $factory->getFsp('query')
             );
-
-            $plugin->handle($generateParams);
             return $this->asJson(['result' => true], 200);
         }
 

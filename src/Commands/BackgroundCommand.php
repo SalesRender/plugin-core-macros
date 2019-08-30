@@ -12,8 +12,7 @@ use Leadvertex\Plugin\Components\Serializer\Exceptions\InvalidUuidException;
 use Leadvertex\Plugin\Components\Serializer\Exceptions\NotFoundUuidException;
 use Leadvertex\Plugin\Components\Serializer\Serializer;
 use Leadvertex\Plugin\Handler\Factories\ComponentFactory;
-use Leadvertex\Plugin\Handler\Components\PluginFactory;
-use Leadvertex\Plugin\Handler\Components\HandleParams;
+use Leadvertex\Plugin\Handler\Factories\PluginFactory;
 use Leadvertex\Plugin\Handler\PluginInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -66,15 +65,12 @@ class BackgroundCommand extends Command
 
         /** @var PluginInterface $plugin */
         $plugin = PluginFactory::create($name, $factory->getApiClient('api'));
-
-        $handleParams = new HandleParams(
+        $plugin->handle(
             $factory->getProcess('process'),
             $factory->getFormData('settings'),
             $factory->getFormData('options'),
             $factory->getFsp('query')
         );
-
-        $plugin->handle($handleParams);
     }
 
 }

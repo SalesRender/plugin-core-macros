@@ -34,7 +34,7 @@ class AppFactory
         });
         $app->post("{$pattern}/load/options", function (Request $request, Response $response, array $args) {
             $controller = new PluginController($request, $response, $args);
-            return $controller->loadHandleForm();
+            return $controller->loadOptionsForm();
         });
         $app->post("{$pattern}/validate", function (Request $request, Response $response, array $args) {
             $controller = new PluginController($request, $response, $args);

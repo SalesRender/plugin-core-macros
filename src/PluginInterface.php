@@ -8,9 +8,11 @@ namespace Leadvertex\Plugin\Handler;
 
 
 use Leadvertex\Plugin\Components\ApiClient\ApiClient;
+use Leadvertex\Plugin\Components\ApiClient\ApiFilterSortPaginate;
 use Leadvertex\Plugin\Components\Developer\Developer;
+use Leadvertex\Plugin\Components\Form\FormData;
+use Leadvertex\Plugin\Components\Process\Process;
 use Leadvertex\Plugin\Components\Purpose\PluginPurpose;
-use Leadvertex\Plugin\Handler\Components\HandleParams;
 use Leadvertex\Plugin\Components\Form\Form;
 use Leadvertex\Plugin\Components\I18n\I18nInterface;
 
@@ -60,21 +62,36 @@ interface PluginInterface
     public function getDeveloper(): Developer;
 
     /**
-     * Should return settings form for plugin configs
-     * @return Form|null
+     * @return bool
      */
-    public function getSettingsForm(): ?Form;
+    public function hasSettingsForm(): bool;
+
+    /**
+     * Should return settings form for plugin configs
+     * @return Form
+     */
+    public function getSettingsForm(): Form;
+
+    /**
+     * @return bool
+     */
+    public function hasOptionsForm(): bool;
 
     /**
      * Should return form for plugin options (before-handle form)
-     * @return Form|null
+     * @param FormData|null $settings
+     * @param ApiFilterSortPaginate $fsp
+     * @return Form
      */
-    public function getOptionsForm(): ?Form;
+    public function getOptionsForm(?FormData $settings, ApiFilterSortPaginate $fsp): Form;
 
     /**
-     * @param HandleParams $params
+     * @param Process $process
+     * @param FormData $settings
+     * @param FormData $options
+     * @param ApiFilterSortPaginate $fsp
      * @return mixed
      */
-    public function handle(HandleParams $params);
+    public function handle(Process $process, ?FormData $settings, ?FormData $options, ApiFilterSortPaginate $fsp);
 
 }

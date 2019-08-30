@@ -5,7 +5,7 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\Plugin\Handler\Components;
+namespace Leadvertex\Plugin\Handler\Factories;
 
 
 use Leadvertex\Plugin\Components\ApiClient\ApiClient;
