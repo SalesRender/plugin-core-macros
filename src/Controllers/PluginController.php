@@ -10,6 +10,7 @@ namespace Leadvertex\Plugin\Handler\Controllers;
 
 use Cocur\BackgroundProcess\BackgroundProcess;
 use Leadvertex\Plugin\Components\Serializer\Serializer;
+use Leadvertex\Plugin\Handler\Exceptions\InvalidFormDataException;
 use Leadvertex\Plugin\Handler\Exceptions\MismatchPurpose;
 use Leadvertex\Plugin\Handler\Factories\ComponentFactory;
 use Leadvertex\Plugin\Handler\Factories\PluginFactory;
@@ -17,7 +18,6 @@ use Leadvertex\Plugin\Handler\PluginInterface;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
 use Webmozart\PathUtil\Path;
-use XAKEPEHOK\EnumHelper\Exception\OutOfEnumException;
 
 class PluginController
 {
@@ -25,11 +25,11 @@ class PluginController
     /**
      * @var string
      */
-    private $runtimeDir;
+    private $publicDir;
     /**
      * @var string
      */
-    private $consoleScript;
+    private $runtimeDir;
     /**
      * @var bool
      */
@@ -61,17 +61,20 @@ class PluginController
 
     public function __construct(Request $request, Response $response, array $args)
     {
+        $this->publicDir = constant('LV_PLUGIN_DIR_PUBLIC');
         $this->runtimeDir = constant('LV_PLUGIN_DIR_RUNTIME');
-        $this->consoleScript = constant('LV_PLUGIN_CONSOLE_SCRIPT');
         $this->debugMode = constant('LV_PLUGIN_DEBUG');
 
         $this->request = $request;
-        $this->response = $response;
         $this->args = $args;
 
         $this->factory = new ComponentFactory($request->getParsedBody());
         $this->pluginName = $args['plugin'];
         $this->plugin = PluginFactory::create($this->pluginName, $this->factory->getApiClient('api'));
+
+        $this->response = $response
+            ->withHeader('X-Purpose-Class', $this->plugin->getPurpose()->getClass()->get())
+            ->withHeader('X-Purpose-Entity', $this->plugin->getPurpose()->getEntity()->get());
     }
 
     /**
@@ -106,23 +109,22 @@ class PluginController
     /**
      * @return Response
      * @throws MismatchPurpose
-     * @throws OutOfEnumException
      */
     public function loadOptionsForm()
     {
         $this->guardPurpose();
         $plugin = $this->plugin;
+        $factory = $this->factory;
 
         $options = null;
         if ($plugin->hasOptionsForm()) {
 
             if ($plugin->hasSettingsForm()) {
-                $settingsFormData = $this->factory->getFormData('settings');
+                $settingsFormData = $factory->getFormData('settings');
                 $plugin->getSettingsForm()->setData($settingsFormData);
             }
 
-            $fsp = $this->factory->getFsp('query');
-            $options = $plugin->getOptionsForm($fsp);
+            $options = $plugin->getOptionsForm($factory->getFsp('query'));
         }
 
         return $this->asJson([
@@ -132,44 +134,38 @@ class PluginController
 
     /**
      * @return Response
-     * @throws OutOfEnumException
      */
     public function validateSettingsForm()
     {
-        $factory = $this->factory;
-        $plugin = $this->plugin;
-
         try {
             $this->guardPurpose();
-        } catch (MismatchPurpose $exception) {
+            $this->guardSettingsData();
+        } catch (MismatchPurpose | InvalidFormDataException $exception) {
             return $this->asJson([
                 'valid' => false,
                 'error' => $exception->getMessage(),
-            ], 405);
+            ], $exception->getCode());
         }
 
-        $settingsData = $factory->getFormData('settings');
-        if ($plugin->hasSettingsForm() && $plugin->getSettingsForm()->validateData($settingsData)) {
-            return $this->asJson([
-                'valid' => false,
-                'error' => 'Invalid settings form data',
-            ], 400);
-        }
-
-        return $this->asJson(['valid' => true]);
+        return $this->asJson([
+            'valid' => true,
+            'error' => null
+        ]);
     }
 
     /**
      * @return Response
+     * @throws InvalidFormDataException
      * @throws MismatchPurpose
-     * @throws OutOfEnumException
      */
     public function handle()
     {
+        $this->guardPurpose();
+        $this->guardSettingsData();
+        $this->guardOptionsData();
+
         $factory = $this->factory;
         $plugin = $this->plugin;
-
-        $this->guardPurpose();
 
         if ($this->debugMode) {
             $plugin->handle(
@@ -187,23 +183,12 @@ class PluginController
             'query' => $this->request->getParsedBody(),
         ]);
 
-        $command = "php {$this->consoleScript} app:background {$uuid}";
+        $consoleScript = Path::canonicalize($this->publicDir . '/../console.php');
+        $command = "php {$consoleScript} app:background {$uuid}";
         $runner = new BackgroundProcess($command);
         $runner->run();
 
         return $this->asJson(['result' => true], 200);
-    }
-
-    /**
-     * @throws MismatchPurpose
-     * @throws OutOfEnumException
-     */
-    private function guardPurpose()
-    {
-        $requestPurpose = $this->factory->getPurpose('purpose');
-        if (!$this->plugin->getPurpose()->isEquals($requestPurpose)) {
-            throw new MismatchPurpose('Mismatch real plugin class & entity with data from request');
-        }
     }
 
     private function asJson(array $data, int $code = 200): Response
@@ -213,6 +198,31 @@ class PluginController
         return $this->response
             ->withHeader('Content-Type', 'application/json')
             ->withStatus($code);
+    }
+
+    private function guardPurpose()
+    {
+        $requestPurpose = $this->factory->getPurpose('purpose');
+        if (!$this->plugin->getPurpose()->isEquals($requestPurpose)) {
+            throw new MismatchPurpose('Mismatch real plugin class & entity with data from request', 405);
+        }
+    }
+
+    private function guardSettingsData()
+    {
+        $settingsData = $this->factory->getFormData('settings');
+        if ($this->plugin->hasSettingsForm() && !$this->plugin->getSettingsForm()->validateData($settingsData)) {
+            throw new InvalidFormDataException('Invalid settings data', 400);
+        }
+    }
+
+    private function guardOptionsData()
+    {
+        $fsp = $this->factory->getFsp('query');
+        $optionsData = $this->factory->getFormData('options');
+        if ($this->plugin->hasOptionsForm() && !$this->plugin->getOptionsForm($fsp)->validateData($optionsData)) {
+            throw new InvalidFormDataException('Invalid options data', 400);
+        }
     }
 
 }

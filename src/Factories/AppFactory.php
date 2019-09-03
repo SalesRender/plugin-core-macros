@@ -1,8 +1,5 @@
 <?php
-
-
 namespace Leadvertex\Plugin\Handler\Factories;
-
 
 use Leadvertex\Plugin\Handler\Commands\BackgroundCommand;
 use Leadvertex\Plugin\Handler\Commands\CleanUpCommand;
@@ -12,13 +9,29 @@ use Slim\App;
 use Slim\Psr7\Request;
 use Slim\Psr7\Response;
 use Symfony\Component\Console\Application;
+use Webmozart\PathUtil\Path;
 
 class AppFactory
 {
 
-    public static function web(): App
+    public function __construct()
     {
-        static::config();
+        $constants = [
+            'LV_PLUGIN_DIR_RUNTIME',
+            'LV_PLUGIN_DIR_PUBLIC',
+            'LV_PLUGIN_URL_PUBLIC',
+            'LV_PLUGIN_DEBUG',
+        ];
+
+        foreach ($constants as $constant) {
+            if (!defined($constant)) {
+                throw new RuntimeException("Constant {$constant} is not defined");
+            }
+        }
+    }
+
+    public function web(): App
+    {
         $app = \Slim\Factory\AppFactory::create();
         $app->addErrorMiddleware(constant('LV_PLUGIN_DEBUG'), true, true);
 
@@ -57,31 +70,13 @@ class AppFactory
         return $app;
     }
 
-    public static function console(): Application
+    public function console(): Application
     {
-        static::config();
         $app = new Application();
         $runtimeDir = constant('LV_PLUGIN_DIR_RUNTIME');
-        $outputDir = constant('LV_PLUGIN_DIR_PUBLIC');
+        $outputDir = Path::canonicalize(constant('LV_PLUGIN_DIR_PUBLIC') . '/output');
         $app->add(new CleanUpCommand([$runtimeDir, $outputDir]));
         $app->add(new BackgroundCommand($runtimeDir, $outputDir));
         return $app;
-    }
-
-    protected static function config()
-    {
-        $constants = [
-            'LV_PLUGIN_DIR_RUNTIME',
-            'LV_PLUGIN_DIR_PUBLIC',
-            'LV_PLUGIN_URL_PUBLIC',
-            'LV_PLUGIN_CONSOLE_SCRIPT',
-            'LV_PLUGIN_DEBUG',
-        ];
-
-        foreach ($constants as $constant) {
-            if (!defined($constant)) {
-                throw new RuntimeException("Constant {$constant} is not defined");
-            }
-        }
     }
 }

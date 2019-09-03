@@ -55,7 +55,7 @@ class CleanUpCommand extends Command
         $directory = realpath($directory);
         $directoryIterator = new RecursiveDirectoryIterator($directory, RecursiveDirectoryIterator::SKIP_DOTS);
 
-        /** @var \RecursiveDirectoryIterator[] $iterator */
+        /** @var RecursiveDirectoryIterator[] $iterator */
         $iterator = new RecursiveIteratorIterator($directoryIterator, RecursiveIteratorIterator::CHILD_FIRST);
         foreach ($iterator as $item) {
 

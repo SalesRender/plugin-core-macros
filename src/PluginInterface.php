@@ -79,10 +79,10 @@ interface PluginInterface
 
     /**
      * Should return form for plugin options (before-handle form)
-     * @param ApiFilterSortPaginate|null $fsp
+     * @param ApiFilterSortPaginate|null $fspQuery
      * @return Form
      */
-    public function getOptionsForm(?ApiFilterSortPaginate $fsp): Form;
+    public function getOptionsForm(?ApiFilterSortPaginate $fspQuery): Form;
 
     /**
      * @param Process $process
