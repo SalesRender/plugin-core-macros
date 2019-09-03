@@ -79,19 +79,18 @@ interface PluginInterface
 
     /**
      * Should return form for plugin options (before-handle form)
-     * @param FormData|null $settings
-     * @param ApiFilterSortPaginate $fsp
+     * @param ApiFilterSortPaginate|null $fsp
      * @return Form
      */
-    public function getOptionsForm(?FormData $settings, ApiFilterSortPaginate $fsp): Form;
+    public function getOptionsForm(?ApiFilterSortPaginate $fsp): Form;
 
     /**
      * @param Process $process
-     * @param FormData $settings
-     * @param FormData $options
-     * @param ApiFilterSortPaginate $fsp
+     * @param FormData|null $settings
+     * @param FormData|null $options
+     * @param ApiFilterSortPaginate|null $fsp
      * @return mixed
      */
-    public function handle(Process $process, ?FormData $settings, ?FormData $options, ApiFilterSortPaginate $fsp);
+    public function handle(Process $process, ?FormData $settings, ?FormData $options, ?ApiFilterSortPaginate $fsp);
 
 }

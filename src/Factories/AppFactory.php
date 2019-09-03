@@ -38,7 +38,7 @@ class AppFactory
         });
         $app->post("{$pattern}/validate", function (Request $request, Response $response, array $args) {
             $controller = new PluginController($request, $response, $args);
-            return $controller->check();
+            return $controller->validateSettingsForm();
         });
         $app->post("{$pattern}/handle", function (Request $request, Response $response, array $args) {
             $controller = new PluginController($request, $response, $args);

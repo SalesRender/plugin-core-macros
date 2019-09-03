@@ -77,7 +77,7 @@ class PluginController
     /**
      * @return Response
      */
-    public function loadSettingsForm()
+    public function load()
     {
         $plugin = $this->plugin;
         return $this->asJson([
@@ -92,7 +92,14 @@ class PluginController
                 'list' => $plugin::getLanguages(),
                 'default' => $plugin::getDefaultLanguage(),
             ],
-            'settings' => $plugin->hasSettingsForm() ? $plugin->getSettingsForm()->toArray() : null,
+        ]);
+    }
+
+    public function loadSettingsForm()
+    {
+        $plugin = $this->plugin;
+        return $this->asJson([
+            'settings' => $plugin->hasSettingsForm() ? $plugin->getSettingsForm()->toArray() : null
         ]);
     }
 
@@ -103,14 +110,19 @@ class PluginController
      */
     public function loadOptionsForm()
     {
-        $plugin = $this->plugin;
         $this->guardPurpose();
+        $plugin = $this->plugin;
 
         $options = null;
         if ($plugin->hasOptionsForm()) {
-            $settingsFormData = $this->factory->getFormData('settings');
+
+            if ($plugin->hasSettingsForm()) {
+                $settingsFormData = $this->factory->getFormData('settings');
+                $plugin->getSettingsForm()->setData($settingsFormData);
+            }
+
             $fsp = $this->factory->getFsp('query');
-            $options = $plugin->getOptionsForm($settingsFormData, $fsp);
+            $options = $plugin->getOptionsForm($fsp);
         }
 
         return $this->asJson([
@@ -122,7 +134,7 @@ class PluginController
      * @return Response
      * @throws OutOfEnumException
      */
-    public function check()
+    public function validateSettingsForm()
     {
         $factory = $this->factory;
         $plugin = $this->plugin;
@@ -137,7 +149,7 @@ class PluginController
         }
 
         $settingsData = $factory->getFormData('settings');
-        if ($plugin->hasSettingsForm() && !$plugin->getSettingsForm()->validateData($settingsData)) {
+        if ($plugin->hasSettingsForm() && $plugin->getSettingsForm()->validateData($settingsData)) {
             return $this->asJson([
                 'valid' => false,
                 'error' => 'Invalid settings form data',
