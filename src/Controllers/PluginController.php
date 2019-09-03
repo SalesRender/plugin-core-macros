@@ -25,11 +25,15 @@ class PluginController
     /**
      * @var string
      */
-    private $publicDir;
+    private $pluginDir;
     /**
      * @var string
      */
     private $runtimeDir;
+    /**
+     * @var string
+     */
+    private $outputDir;
     /**
      * @var bool
      */
@@ -61,8 +65,9 @@ class PluginController
 
     public function __construct(Request $request, Response $response, array $args)
     {
-        $this->publicDir = constant('LV_PLUGIN_DIR_PUBLIC');
+        $this->pluginDir = constant('LV_PLUGIN_DIR');
         $this->runtimeDir = constant('LV_PLUGIN_DIR_RUNTIME');
+        $this->outputDir = constant('LV_PLUGIN_DIR_OUTPUT');
         $this->debugMode = constant('LV_PLUGIN_DEBUG');
 
         $this->request = $request;
@@ -183,7 +188,7 @@ class PluginController
             'query' => $this->request->getParsedBody(),
         ]);
 
-        $consoleScript = Path::canonicalize($this->publicDir . '/../console.php');
+        $consoleScript = Path::canonicalize($this->pluginDir . '/console.php');
         $command = "php {$consoleScript} app:background {$uuid}";
         $runner = new BackgroundProcess($command);
         $runner->run();

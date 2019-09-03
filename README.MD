@@ -8,11 +8,9 @@ Define a few constants in `const.php`
 ```php
 <?php 
 require_once __DIR__ . '/vendor/autoload.php';
-use Webmozart\PathUtil\Path;
 
-define('LV_PLUGIN_DIR_RUNTIME', Path::canonicalize(__DIR__ . '/runtime'));
-define('LV_PLUGIN_DIR_PUBLIC', Path::canonicalize(__DIR__ . '/public'));
-define('LV_PLUGIN_URL_PUBLIC', 'http://example.com/');
+define('LV_PLUGIN_DIR', __DIR__);
+define('LV_PLUGIN_URL', 'http://example.com/');
 define('LV_PLUGIN_DEBUG', false);
 ```
 

@@ -22,8 +22,8 @@ interface PluginInterface
     public function __construct(
         ApiClient $apiClient,
         string $runtimeDir,
-        string $publicDir,
-        string $publicUrl
+        string $outputDir,
+        string $outputUrl
     );
 
     /**

@@ -16,11 +16,11 @@ class AppFactory
 
     public function __construct()
     {
+        defined('LV_PLUGIN_DEBUG') or define('LV_PLUGIN_DEBUG', false);
+
         $constants = [
-            'LV_PLUGIN_DIR_RUNTIME',
-            'LV_PLUGIN_DIR_PUBLIC',
-            'LV_PLUGIN_URL_PUBLIC',
-            'LV_PLUGIN_DEBUG',
+            'LV_PLUGIN_DIR',
+            'LV_PLUGIN_URL',
         ];
 
         foreach ($constants as $constant) {
@@ -28,6 +28,10 @@ class AppFactory
                 throw new RuntimeException("Constant {$constant} is not defined");
             }
         }
+
+        define('LV_PLUGIN_DIR_RUNTIME', Path::canonicalize(constant('LV_PLUGIN_DIR') . '/runtime'));
+        define('LV_PLUGIN_DIR_OUTPUT', Path::canonicalize(constant('LV_PLUGIN_DIR') . '/public/output'));
+        define('LV_PLUGIN_URL_OUTPUT', Path::canonicalize(constant('LV_PLUGIN_URL') . '/output'));
     }
 
     public function web(): App

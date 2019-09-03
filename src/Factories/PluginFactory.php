@@ -20,8 +20,8 @@ class PluginFactory
         return new $classname(
             $client,
             constant('LV_PLUGIN_DIR_RUNTIME'),
-            constant('LV_PLUGIN_DIR_PUBLIC'),
-            constant('LV_PLUGIN_URL_PUBLIC')
+            constant('LV_PLUGIN_DIR_OUTPUT'),
+            constant('LV_PLUGIN_URL_OUTPUT')
         );
     }
 
