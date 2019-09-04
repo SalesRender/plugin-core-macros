@@ -39,7 +39,7 @@ class AppFactory
         $app = \Slim\Factory\AppFactory::create();
         $app->addErrorMiddleware(constant('LV_PLUGIN_DEBUG'), true, true);
 
-        $pattern = '/leadvertex/plugin/{plugin:[a-zA-Z][a-zA-Z\d_]*}';
+        $pattern = '/{plugin:[a-zA-Z][a-zA-Z\d_]*}';
 
         $app->post("{$pattern}/load", function (Request $request, Response $response, array $args) {
             $controller = new PluginController($request, $response, $args);
