@@ -10,7 +10,6 @@ namespace Leadvertex\Plugin\Handler;
 use Leadvertex\Plugin\Components\ApiClient\ApiClient;
 use Leadvertex\Plugin\Components\ApiClient\ApiFilterSortPaginate;
 use Leadvertex\Plugin\Components\Developer\Developer;
-use Leadvertex\Plugin\Components\Form\FormData;
 use Leadvertex\Plugin\Components\Process\Process;
 use Leadvertex\Plugin\Components\Purpose\PluginPurpose;
 use Leadvertex\Plugin\Components\Form\Form;
@@ -85,11 +84,9 @@ interface PluginInterface
 
     /**
      * @param Process $process
-     * @param FormData|null $settings
-     * @param FormData|null $options
      * @param ApiFilterSortPaginate|null $fsp
      * @return mixed
      */
-    public function handle(Process $process, ?FormData $settings, ?FormData $options, ?ApiFilterSortPaginate $fsp);
+    public function handle(Process $process, ?ApiFilterSortPaginate $fsp);
 
 }

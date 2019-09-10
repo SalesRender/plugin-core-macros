@@ -139,8 +139,6 @@ class PluginController
         if ($this->debugMode) {
             $plugin->handle(
                 $factory->getProcess('process'),
-                $factory->getFormData('settings'),
-                $factory->getFormData('options'),
                 $factory->getFsp('query')
             );
             return $this->asJson(['result' => true], 200);
