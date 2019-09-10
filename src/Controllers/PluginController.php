@@ -9,6 +9,8 @@ namespace Leadvertex\Plugin\Handler\Controllers;
 
 
 use Cocur\BackgroundProcess\BackgroundProcess;
+use Leadvertex\Plugin\Components\Form\Form;
+use Leadvertex\Plugin\Components\Form\FormData;
 use Leadvertex\Plugin\Components\Serializer\Serializer;
 use Leadvertex\Plugin\Handler\Exceptions\InvalidFormDataException;
 use Leadvertex\Plugin\Handler\Exceptions\MismatchPurpose;
@@ -77,6 +79,22 @@ class PluginController
         $this->pluginName = $args['plugin'];
         $this->plugin = PluginFactory::create($this->pluginName, $this->factory->getApiClient('api'));
 
+        if ($this->plugin->hasSettingsForm()) {
+            $this->safeSetData(
+                $this->plugin->getSettingsForm(),
+                $this->factory->getFormData('settings'),
+                new InvalidFormDataException('Invalid settings data')
+            );
+        }
+
+        if ($this->plugin->hasOptionsForm()) {
+            $this->safeSetData(
+                $this->plugin->getOptionsForm(),
+                $this->factory->getFormData('options'),
+                new InvalidFormDataException('Invalid options data')
+            );
+        }
+
         $this->response = $response
             ->withHeader('X-Purpose-Class', $this->plugin->getPurpose()->getClass()->get())
             ->withHeader('X-Purpose-Entity', $this->plugin->getPurpose()->getEntity()->get());
@@ -100,73 +118,20 @@ class PluginController
                 'list' => $plugin::getLanguages(),
                 'default' => $plugin::getDefaultLanguage(),
             ],
-        ]);
-    }
-
-    public function loadSettingsForm()
-    {
-        $plugin = $this->plugin;
-        return $this->asJson([
-            'settings' => $plugin->hasSettingsForm() ? $plugin->getSettingsForm()->toArray() : null
+            'forms' => [
+                'settings' => $plugin->hasSettingsForm() ? $plugin->getSettingsForm()->toArray() : null,
+                'options' => $plugin->hasOptionsForm() ? $plugin->getOptionsForm()->toArray() : null,
+            ]
         ]);
     }
 
     /**
      * @return Response
-     * @throws MismatchPurpose
-     */
-    public function loadOptionsForm()
-    {
-        $this->guardPurpose();
-        $plugin = $this->plugin;
-        $factory = $this->factory;
-
-        $options = null;
-        if ($plugin->hasOptionsForm()) {
-
-            if ($plugin->hasSettingsForm()) {
-                $settingsFormData = $factory->getFormData('settings');
-                $plugin->getSettingsForm()->setData($settingsFormData);
-            }
-
-            $options = $plugin->getOptionsForm($factory->getFsp('query'));
-        }
-
-        return $this->asJson([
-            'options' => $options
-        ]);
-    }
-
-    /**
-     * @return Response
-     */
-    public function validateSettingsForm()
-    {
-        try {
-            $this->guardSettingsData();
-        } catch (InvalidFormDataException $exception) {
-            return $this->asJson([
-                'valid' => false,
-                'error' => $exception->getMessage(),
-            ], $exception->getCode());
-        }
-
-        return $this->asJson([
-            'valid' => true,
-            'error' => null
-        ]);
-    }
-
-    /**
-     * @return Response
-     * @throws InvalidFormDataException
      * @throws MismatchPurpose
      */
     public function handle()
     {
         $this->guardPurpose();
-        $this->guardSettingsData();
-        $this->guardOptionsData();
 
         $factory = $this->factory;
         $plugin = $this->plugin;
@@ -204,28 +169,19 @@ class PluginController
             ->withStatus($code);
     }
 
+    private function safeSetData(Form $form, ?FormData $formData, InvalidFormDataException $exception)
+    {
+        if ($formData && !$form->validateData($formData)) {
+            throw $exception;
+        }
+        $form->setData($formData);
+    }
+
     private function guardPurpose()
     {
         $requestPurpose = $this->factory->getPurpose('purpose');
         if (!$this->plugin->getPurpose()->isEquals($requestPurpose)) {
             throw new MismatchPurpose('Mismatch real plugin class & entity with data from request', 405);
-        }
-    }
-
-    private function guardSettingsData()
-    {
-        $settingsData = $this->factory->getFormData('settings');
-        if ($this->plugin->hasSettingsForm() && !$this->plugin->getSettingsForm()->validateData($settingsData)) {
-            throw new InvalidFormDataException('Invalid settings data', 400);
-        }
-    }
-
-    private function guardOptionsData()
-    {
-        $fsp = $this->factory->getFsp('query');
-        $optionsData = $this->factory->getFormData('options');
-        if ($this->plugin->hasOptionsForm() && !$this->plugin->getOptionsForm($fsp)->validateData($optionsData)) {
-            throw new InvalidFormDataException('Invalid options data', 400);
         }
     }
 

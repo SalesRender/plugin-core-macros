@@ -46,21 +46,6 @@ class AppFactory
             return $controller->load();
         });
 
-        $app->post("{$pattern}/load/settings", function (Request $request, Response $response, array $args) {
-            $controller = new PluginController($request, $response, $args);
-            return $controller->loadSettingsForm();
-        });
-
-        $app->post("{$pattern}/load/options", function (Request $request, Response $response, array $args) {
-            $controller = new PluginController($request, $response, $args);
-            return $controller->loadOptionsForm();
-        });
-
-        $app->post("{$pattern}/validate", function (Request $request, Response $response, array $args) {
-            $controller = new PluginController($request, $response, $args);
-            return $controller->validateSettingsForm();
-        });
-
         $app->post("{$pattern}/handle", function (Request $request, Response $response, array $args) {
             $controller = new PluginController($request, $response, $args);
             return $controller->handle();
