@@ -143,9 +143,8 @@ class PluginController
     public function validateSettingsForm()
     {
         try {
-            $this->guardPurpose();
             $this->guardSettingsData();
-        } catch (MismatchPurpose | InvalidFormDataException $exception) {
+        } catch (InvalidFormDataException $exception) {
             return $this->asJson([
                 'valid' => false,
                 'error' => $exception->getMessage(),
