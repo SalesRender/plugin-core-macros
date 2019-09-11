@@ -108,8 +108,8 @@ class PluginController
         $plugin = $this->plugin;
         return $this->response->withJson([
             'purpose' => [
-                'class' => $plugin->getPurpose()->getClass(),
-                'entity' => $plugin->getPurpose()->getEntity(),
+                'class' => $plugin->getPurpose()->getClass()->get(),
+                'entity' => $plugin->getPurpose()->getEntity()->get(),
             ],
             'name' => $plugin::getName()->get(),
             'description' => $plugin::getDescription()->get(),
