@@ -17,8 +17,8 @@ use Leadvertex\Plugin\Handler\Exceptions\MismatchPurpose;
 use Leadvertex\Plugin\Handler\Factories\ComponentFactory;
 use Leadvertex\Plugin\Handler\Factories\PluginFactory;
 use Leadvertex\Plugin\Handler\PluginInterface;
-use Slim\Psr7\Request;
-use Slim\Psr7\Response;
+use Slim\Http\Response;
+use Slim\Http\ServerRequest as Request;
 use Webmozart\PathUtil\Path;
 
 class PluginController
@@ -75,7 +75,7 @@ class PluginController
         $this->request = $request;
         $this->args = $args;
 
-        $this->factory = new ComponentFactory($request->getParsedBody());
+        $this->factory = new ComponentFactory($this->request->getParsedBody());
         $this->pluginName = $args['plugin'];
         $this->plugin = PluginFactory::create($this->pluginName, $this->factory->getApiClient('api'));
 
