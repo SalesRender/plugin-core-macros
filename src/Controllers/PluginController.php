@@ -106,7 +106,7 @@ class PluginController
     public function load()
     {
         $plugin = $this->plugin;
-        return $this->asJson([
+        return $this->response->withJson([
             'purpose' => [
                 'class' => $plugin->getPurpose()->getClass(),
                 'entity' => $plugin->getPurpose()->getEntity(),
@@ -141,7 +141,7 @@ class PluginController
                 $factory->getProcess('process'),
                 $factory->getFsp('query')
             );
-            return $this->asJson(['result' => true], 200);
+            return $this->response->withJson(['result' => true], 200);
         }
 
         $serializer = new Serializer(Path::canonicalize("{$this->runtimeDir}/serializer"));
@@ -155,24 +155,17 @@ class PluginController
         $runner = new BackgroundProcess($command);
         $runner->run();
 
-        return $this->asJson(['result' => true], 200);
-    }
-
-    private function asJson(array $data, int $code = 200): Response
-    {
-        $payload = json_encode($data);
-        $this->response->getBody()->write($payload);
-        return $this->response
-            ->withHeader('Content-Type', 'application/json')
-            ->withStatus($code);
+        return $this->response->withJson(['result' => true]);
     }
 
     private function safeSetData(Form $form, ?FormData $formData, InvalidFormDataException $exception)
     {
-        if ($formData && !$form->validateData($formData)) {
-            throw $exception;
+        if ($formData) {
+            if (!$form->validateData($formData)) {
+                throw $exception;
+            }
+            $form->setData($formData);
         }
-        $form->setData($formData);
     }
 
     private function guardPurpose()

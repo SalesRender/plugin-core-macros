@@ -16,7 +16,7 @@ class PluginFactory
 
     public static function create(string $name, ApiClient $client): PluginInterface
     {
-        $classname = "\\Leadvertex\\\Plugin\\Handler\\{$name}\\{$name}";
+        $classname = "\\Leadvertex\\Plugin\\Handler\\{$name}\\{$name}";
         return new $classname(
             $client,
             constant('LV_PLUGIN_DIR_RUNTIME'),

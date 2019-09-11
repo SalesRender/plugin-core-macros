@@ -6,8 +6,8 @@ use Leadvertex\Plugin\Handler\Commands\CleanUpCommand;
 use Leadvertex\Plugin\Handler\Controllers\PluginController;
 use RuntimeException;
 use Slim\App;
-use Slim\Psr7\Request;
-use Slim\Psr7\Response;
+use Slim\Http\Response;
+use Slim\Http\ServerRequest as Request;
 use Symfony\Component\Console\Application;
 use Webmozart\PathUtil\Path;
 
