@@ -5,72 +5,65 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\Plugin\Handler\Commands;
+namespace Leadvertex\Plugin\Core\Macros\Commands;
 
 
-use Leadvertex\Plugin\Components\Serializer\Exceptions\InvalidUuidException;
-use Leadvertex\Plugin\Components\Serializer\Exceptions\NotFoundUuidException;
-use Leadvertex\Plugin\Components\Serializer\Serializer;
-use Leadvertex\Plugin\Handler\Factories\ComponentFactory;
-use Leadvertex\Plugin\Handler\Factories\PluginFactory;
-use Leadvertex\Plugin\Handler\PluginInterface;
+use Leadvertex\Plugin\Components\Db\Components\Connector;
+use Leadvertex\Plugin\Components\Process\Components\Error;
+use Leadvertex\Plugin\Components\Process\Process;
+use Leadvertex\Plugin\Components\Translations\Translator;
+use Leadvertex\Plugin\Core\Macros\Exceptions\SessionException;
+use Leadvertex\Plugin\Core\Macros\MacrosPlugin;
+use Leadvertex\Plugin\Core\Macros\Models\Session;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Webmozart\PathUtil\Path;
+use Throwable;
 
 class BackgroundCommand extends Command
 {
-
-    /**
-     * @var string
-     */
-    private $runtimeDir;
-    /**
-     * @var string
-     */
-    private $outputDir;
-
-    public function __construct(string $runtimeDir, string $outputDir)
-    {
-        parent::__construct();
-        $this->runtimeDir = $runtimeDir;
-        $this->outputDir = $outputDir;
-    }
 
     protected function configure()
     {
         $this
             ->setName('app:background')
             ->setDescription('Run handle operation in background')
-            ->addArgument('uuid', InputArgument::REQUIRED);
+            ->addArgument('id', InputArgument::REQUIRED)
+            ->addArgument('companyId', InputArgument::REQUIRED);
     }
 
     /**
      * @param InputInterface $input
      * @param OutputInterface $output
      * @return int|void|null
-     * @throws InvalidUuidException
-     * @throws NotFoundUuidException
+     * @throws SessionException
+     * @throws Throwable
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $serializerDir = Path::canonicalize("{$this->runtimeDir}/serializer");
-        $serializer = new Serializer($serializerDir);
-        $data = $serializer->unserialize($input->getArgument('uuid'));
+        Connector::setCompanyId($input->getArgument('companyId'));
+        $session = Session::findById($input->getArgument('id'));
+        Session::start($session);
 
-        $name = $data['name'];
-        $factory = new ComponentFactory($data['query']);
+        $plugin = MacrosPlugin::getInstance();
 
-        /** @var PluginInterface $plugin */
-        $plugin = PluginFactory::create($name, $factory->getApiClient('api'));
-        $plugin->handle(
-            $factory->getProcess('process'),
-            $factory->getFormData('settings'),
-            $factory->getFormData('options'),
-            $factory->getFsp('query')
-        );
+        Translator::config($plugin::getDefaultLanguage());
+        Translator::setLang(str_replace('-', '_', $session->lang));
+
+        $plugin->setSession($session);
+        $process = Process::findById($session->getId());
+
+        try {
+            $plugin->run($process, $session->fsp);
+        } catch (Throwable $exception) {
+            $error = new Error('Fatal plugin error. Please contact plugin developer: ' . $plugin::getDeveloper()->getEmail());
+            $process->terminate($error);
+            $process->save();
+            throw $exception;
+        }
+
+        return 0;
     }
 
 }

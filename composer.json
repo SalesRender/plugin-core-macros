@@ -1,6 +1,6 @@
 {
-  "name": "leadvertex/plugin-core",
-  "description": "LeadVertex plugin core",
+  "name": "leadvertex/plugin-core-macros",
+  "description": "LeadVertex plugin macros core",
   "type": "library",
   "minimum-stability": "stable",
   "license": "proprietary",
@@ -12,25 +12,28 @@
   ],
   "autoload": {
     "psr-4": {
-      "Leadvertex\\Plugin\\Handler\\": "src/"
+      "Leadvertex\\Plugin\\Core\\Macros\\": "src/"
     }
   },
   "require": {
-    "php": ">=7.1.0",
+    "php": ">=7.2.0",
     "ext-json": "*",
     "slim/slim": "^4.0",
     "slim/psr7": "^0.5.0",
-    "symfony/console": "^4.3",
-    "guzzlehttp/guzzle": "^6.3",
+    "slim/http": "^0.8.0",
+    "symfony/console": "^5.0",
+    "symfony/process": "^5.0",
+    "ramsey/uuid": "^3.9",
+    "vlucas/phpdotenv": "^4.1",
     "adbario/php-dot-notation": "^2.2",
-    "webmozart/path-util": "^2.3",
-    "cocur/background-process": "^0.7.0",
-    "leadvertex/plugin-component-form": "^0.6.0",
+    "khill/php-duration": "^1.0",
+    "leadvertex/plugin-component-form": "^0.7.5",
     "leadvertex/plugin-component-developer": "^0.0.2",
-    "leadvertex/plugin-component-api-client": "^0.3",
-    "leadvertex/plugin-component-serializer": "^0.0.1",
-    "leadvertex/plugin-component-purpose": "^1.1",
-    "slim/http": "^0.8.0"
+    "leadvertex/plugin-component-purpose": "^1.3",
+    "leadvertex/plugin-component-process": "^0.3.7",
+    "leadvertex/plugin-component-api-client": "^0.4.0",
+    "leadvertex/plugin-component-translations": "^0.1.1",
+    "leadvertex/plugin-component-handshake": "^0.1.2"
   },
   "require-dev": {
     "phpunit/phpunit": "^8.2"

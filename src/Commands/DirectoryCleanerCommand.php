@@ -5,7 +5,7 @@
  * @author Timur Kasumov aka XAKEPEHOK
  */
 
-namespace Leadvertex\Plugin\Handler\Commands;
+namespace Leadvertex\Plugin\Core\Macros\Commands;
 
 
 use RecursiveDirectoryIterator;
@@ -15,39 +15,28 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class CleanUpCommand extends Command
+class DirectoryCleanerCommand extends Command
 {
-
-    /**
-     * @var array
-     */
-    private $directories;
-
-    public function __construct(array $directories)
-    {
-        parent::__construct();
-        $this->directories = $directories;
-    }
 
     protected function configure()
     {
         $this
-            ->setName('app:clean-up')
+            ->setName('app:clean-directory')
             ->setDescription('Remove files, older than 24 hours (or another timeout)')
+            ->addArgument('directory', InputArgument::REQUIRED, 'Path to directory')
             ->addArgument('hours', InputArgument::OPTIONAL, 'Timeout in hours', 24)
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        foreach ($this->directories as $directory) {
-            $this->cleanUp(
-                $directory,
-                $input->getArgument('hours'),
-                ['.gitignore'],
-                $output
-            );
-        }
+        $this->cleanUp(
+            $input->getArgument('directory'),
+            $input->getArgument('hours'),
+            ['.gitignore'],
+            $output
+        );
+        return 0;
     }
 
     private function cleanUp(string $directory, int $hoursTimeout, array $exclude, OutputInterface $output)
