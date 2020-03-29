@@ -68,7 +68,7 @@ class AppFactory
             return $controller->upload();
         });
 
-        $app->post("/autocomplete/{name:[a-zA-Z\d_\-\.]+}", function (Request $request, Response $response, array $args) {
+        $app->get("/autocomplete/{name:[a-zA-Z\d_\-\.]+}", function (Request $request, Response $response, array $args) {
             $controller = new PluginController($request, $response);
             return $controller->autocomplete($args['name']);
         });
