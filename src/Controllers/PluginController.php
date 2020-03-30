@@ -64,7 +64,7 @@ class PluginController
         $parser = new Parser();
         $token = $parser->parse($this->request->getParsedBodyParam('registration'));
 
-        Connector::setCompanyId($token->getClaim('companyId'));
+        Connector::setCompanyId($token->getClaim('cid'));
 
         $registration = new Registration($token);
         $registration->save();
