@@ -15,6 +15,7 @@ use Leadvertex\Plugin\Core\Macros\Commands\QueueCommand;
 use Leadvertex\Plugin\Core\Macros\Helpers\PathHelper;
 use Leadvertex\Plugin\Core\Macros\Commands\DirectoryCleanerCommand;
 use Leadvertex\Plugin\Core\Macros\Controllers\PluginController;
+use Psr\Http\Server\RequestHandlerInterface;
 use Slim\App;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
@@ -52,6 +53,19 @@ class AppFactory
         $errorMiddleware = $app->addErrorMiddleware($_ENV['LV_PLUGIN_DEBUG'] ?? false, true, true);
         $errorHandler = $errorMiddleware->getDefaultErrorHandler();
         $errorHandler->forceContentType('application/json');
+
+        $app->options('/{routes:.+}', function ($request, $response, $args) {
+            return $response;
+        });
+
+        $app->add(function (Request $request, RequestHandlerInterface $handler) {
+            /** @var Response $response */
+            $response = $handler->handle($request);
+            return $response
+                ->withHeader('Access-Control-Allow-Origin', '*')
+                ->withHeader('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept, Origin, Authorization')
+                ->withHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+        });
 
         $app->get("/info", function (Request $request, Response $response) {
             $controller = new PluginController($request, $response);
