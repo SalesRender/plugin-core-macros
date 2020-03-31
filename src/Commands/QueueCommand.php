@@ -45,6 +45,7 @@ class QueueCommand extends Command
         parent::__construct('app:queue');
         $this->limit = $_ENV['LV_PLUGIN_QUEUE_LIMIT'] ?? 0;
     }
+
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->mutex = fopen((string) PathHelper::getRoot()->down('mutex.lock'), 'c');
