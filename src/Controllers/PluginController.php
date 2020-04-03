@@ -10,6 +10,7 @@ namespace Leadvertex\Plugin\Core\Macros\Controllers;
 
 use Lcobucci\JWT\Parser;
 use Leadvertex\Plugin\Components\ApiClient\ApiFilterSortPaginate;
+use Leadvertex\Plugin\Components\ApiClient\ApiSort;
 use Leadvertex\Plugin\Components\Db\Components\Connector;
 use Leadvertex\Plugin\Components\Form\Form;
 use Leadvertex\Plugin\Components\Form\FormData;
@@ -299,13 +300,18 @@ class PluginController
         $session = Session::findById($token->getInputToken()->getClaim('jti'));
         if (is_null($session)) {
 
+            $filters = json_decode($this->request->getQueryParam('filters', '[]'), true);
+
+            $sort = json_decode($this->request->getQueryParam('sort'), true);
+            if ($sort && isset($sort['field']) && isset($sort['direction'])) {
+                $sort = new ApiSort($sort['field'], $sort['direction']);
+            } else {
+                $sort = null;
+            }
+
             $session = new Session(
                 $token,
-                new ApiFilterSortPaginate(
-                    $this->request->getQueryParam('filters'),
-                    $this->request->getQueryParam('sort'),
-                    200
-                ),
+                new ApiFilterSortPaginate($filters, $sort, 200),
                 Translator::getLang()
             );
         }
