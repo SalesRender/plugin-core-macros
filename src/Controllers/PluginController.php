@@ -68,6 +68,12 @@ class PluginController
         Connector::setCompanyId($token->getClaim('cid'));
 
         $registration = new Registration($token);
+
+        $old = Registration::findById($registration->getId(), $registration->getFeature());
+        if ($old) {
+            $old->delete();
+        }
+
         $registration->save();
 
         return $this->response;
