@@ -14,7 +14,7 @@ use Leadvertex\Plugin\Components\ApiClient\ApiSort;
 use Leadvertex\Plugin\Components\Db\Components\Connector;
 use Leadvertex\Plugin\Components\Form\Form;
 use Leadvertex\Plugin\Components\Form\FormData;
-use Leadvertex\Plugin\Components\Handshake\Registration;
+use Leadvertex\Plugin\Components\Registration\Registration;
 use Leadvertex\Plugin\Components\Process\Process;
 use Leadvertex\Plugin\Components\Translations\Translator;
 use Leadvertex\Plugin\Core\Macros\Components\InputToken;
@@ -277,7 +277,8 @@ class PluginController
         return [
             'name' => $plugin::getName(),
             'description' => $plugin::getDescription(),
-            'purpose' => [
+            'type' => 'MACROS',
+            'extra' => [
                 'class' => $plugin::getPurpose()->getClass()->get(),
                 'entity' => $plugin::getPurpose()->getEntity()->get(),
             ],

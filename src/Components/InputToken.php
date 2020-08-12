@@ -9,10 +9,10 @@ namespace Leadvertex\Plugin\Core\Macros\Components;
 
 
 use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Hmac\Sha512;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\ValidationData;
-use Leadvertex\Plugin\Components\Handshake\Registration;
+use Leadvertex\Plugin\Components\Registration\Registration;
 use Leadvertex\Plugin\Core\Macros\Exceptions\TokenException;
 
 class InputToken
@@ -72,7 +72,7 @@ class InputToken
     {
         $registration = Registration::findById(
             $token->getClaim('plugin')->id,
-            $token->getClaim('plugin')->model
+            $token->getClaim('plugin')->alias
         );
 
         if (is_null($registration)) {
@@ -94,7 +94,7 @@ class InputToken
             throw new TokenException('Invalid plugin token', 300);
         }
 
-        if (!$token->verify(new Sha256(), $registration->getLVT())) {
+        if (!$token->verify(new Sha512(), $registration->getLVPT())) {
             throw new TokenException('Invalid plugin token sign', 301);
         }
 

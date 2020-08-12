@@ -12,7 +12,7 @@ use Leadvertex\Plugin\Components\ApiClient\ApiClient;
 use Leadvertex\Plugin\Components\ApiClient\ApiFilterSortPaginate;
 use Leadvertex\Plugin\Components\Db\Model;
 use Leadvertex\Plugin\Components\Form\FormData;
-use Leadvertex\Plugin\Components\Handshake\Registration;
+use Leadvertex\Plugin\Components\Registration\Registration;
 use Leadvertex\Plugin\Core\Macros\Exceptions\SessionException;
 use Leadvertex\Plugin\Core\Macros\Exceptions\TokenException;
 use Leadvertex\Plugin\Core\Macros\Components\InputToken;
