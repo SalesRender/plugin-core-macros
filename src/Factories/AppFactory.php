@@ -42,8 +42,8 @@ class AppFactory
         $env->required('LV_PLUGIN_QUEUE_LIMIT')->notEmpty()->isInteger();
         $env->required('LV_PLUGIN_SELF_URI')->notEmpty();
         $env->required('LV_PLUGIN_SELF_TYPE')->notEmpty();
-        $env->required('LV_PLUGIN_COMPONENT_HANDSHAKE_SCHEME')->notEmpty();
-        $env->required('LV_PLUGIN_COMPONENT_HANDSHAKE_HOSTNAME')->notEmpty();
+        $env->required('LV_PLUGIN_COMPONENT_REGISTRATION_SCHEME')->notEmpty();
+        $env->required('LV_PLUGIN_COMPONENT_REGISTRATION_HOSTNAME')->notEmpty();
     }
 
     public function web(): App
