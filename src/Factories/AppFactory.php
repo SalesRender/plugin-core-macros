@@ -127,6 +127,10 @@ class AppFactory
             return $response;
         });
 
+        $app->setBasePath((function () {
+            return parse_url($_ENV['LV_PLUGIN_SELF_URI'], PHP_URL_PATH);
+        })());
+
         return $app;
     }
 
