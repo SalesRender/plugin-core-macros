@@ -45,7 +45,7 @@ class AppFactory
         $env->required('LV_PLUGIN_COMPONENT_REGISTRATION_SCHEME')->notEmpty();
         $env->required('LV_PLUGIN_COMPONENT_REGISTRATION_HOSTNAME')->notEmpty();
 
-        $_ENV['LV_PLUGIN_SELF_URI'] = rtrim($_ENV['LV_PLUGIN_SELF_URI']) . '/';
+        $_ENV['LV_PLUGIN_SELF_URI'] = rtrim($_ENV['LV_PLUGIN_SELF_URI'], '/') . '/';
     }
 
     public function web(): App
