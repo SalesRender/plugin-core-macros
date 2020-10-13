@@ -7,13 +7,10 @@
 namespace Leadvertex\Plugin\Core\Macros;
 
 
-use Leadvertex\Plugin\Components\ApiClient\ApiFilterSortPaginate;
 use Leadvertex\Plugin\Components\Developer\Developer;
-use Leadvertex\Plugin\Components\Process\Process;
 use Leadvertex\Plugin\Components\Purpose\PluginPurpose;
 use Leadvertex\Plugin\Components\Form\Form;
-use Leadvertex\Plugin\Core\Macros\Components\AutocompleteInterface;
-use Leadvertex\Plugin\Core\Macros\Models\Session;
+use Leadvertex\Plugin\Components\Form\Components\AutocompleteInterface;
 
 abstract class MacrosPlugin
 {
@@ -66,35 +63,15 @@ abstract class MacrosPlugin
      * @param int $number
      * @return Form|null
      */
-    abstract public function getRunForm(int $number): ?Form;
+    abstract public function getBatchForm(int $number): ?Form;
+
+    abstract public function handler(): callable;
 
     /**
      * @param string $name
      * @return AutocompleteInterface
      */
     abstract public function autocomplete(string $name): ?AutocompleteInterface;
-
-    /**
-     * @param Process $process
-     * @param ApiFilterSortPaginate|null $fsp
-     * @return mixed
-     */
-    abstract public function run(Process $process, ?ApiFilterSortPaginate $fsp);
-
-    public function setSession(Session $session)
-    {
-        if ($form = $this->getSettingsForm()) {
-            $form->setData($session->getSettings()->getData());
-        }
-
-        for ($number = 1; $number <= 10; $number++) {
-            if (!$session->getOptions($number)->isEmpty() && $form = $this->getRunForm($number)) {
-                $form->setData($session->getOptions($number + 1));
-                continue;
-            }
-            break;
-        }
-    }
 
     public static function getInstance(): self
     {
