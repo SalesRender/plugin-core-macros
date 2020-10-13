@@ -18,8 +18,7 @@ use Leadvertex\Plugin\Components\Form\Form;
 use Leadvertex\Plugin\Components\Form\FormData;
 use Leadvertex\Plugin\Components\Registration\Registration;
 use Leadvertex\Plugin\Components\Process\Process;
-use Leadvertex\Plugin\Components\Token\InputToken;
-use Leadvertex\Plugin\Components\Token\InputTokenInterface;
+use Leadvertex\Plugin\Components\Token\GraphqlInputToken;
 use Leadvertex\Plugin\Components\Translations\Translator;
 use Leadvertex\Plugin\Core\Macros\Helpers\PathHelper;
 use Leadvertex\Plugin\Core\Macros\MacrosPlugin;
@@ -38,7 +37,7 @@ class PluginController
     /** @var Response */
     private $response;
 
-    /** @var InputTokenInterface */
+    /** @var GraphqlInputToken */
     private $token;
 
     public function __construct(Request $request, Response $response)
@@ -321,7 +320,7 @@ class PluginController
         ];
     }
 
-    private function loadToken(): ?InputTokenInterface
+    private function loadToken(): ?GraphqlInputToken
     {
         $jwt = $this->request->getHeader('X-PLUGIN-TOKEN')[0] ?? '';
 
@@ -329,7 +328,7 @@ class PluginController
             return null;
         }
 
-        $token = new InputToken($jwt);
+        $token = new GraphqlInputToken($jwt);
         Connector::setCompanyId($token->getCompanyId());
         return $token;
     }
