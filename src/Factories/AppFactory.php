@@ -47,9 +47,11 @@ class AppFactory
         $env->required('LV_PLUGIN_COMPONENT_REGISTRATION_SCHEME')->notEmpty();
         $env->required('LV_PLUGIN_COMPONENT_REGISTRATION_HOSTNAME')->notEmpty();
 
-        $_ENV['LV_PLUGIN_SELF_URI'] = rtrim($_ENV['LV_PLUGIN_SELF_URI']) . '/';
+        $_ENV['LV_PLUGIN_SELF_URI'] = rtrim($_ENV['LV_PLUGIN_SELF_URI'], '/') . '/';
 
-        Translator::config(MacrosPlugin::getDefaultLanguage());
+        $class = '\Leadvertex\Plugin\Instance\Macros\Plugin';
+        $lang = class_exists($class) ? call_user_func([$class, 'getDefaultLanguage']) : 'en_US';
+        Translator::config($lang);
     }
 
     public function web(): App

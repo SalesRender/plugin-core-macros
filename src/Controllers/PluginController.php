@@ -149,7 +149,7 @@ class PluginController
             return $this->response->withStatus(404);
         }
 
-        return $this->response->withJson($this->token->getSettings());
+        return $this->response->withJson($this->token->getSettings()->getData());
     }
 
     public function setSettingsData(): Response
@@ -176,8 +176,8 @@ class PluginController
             return $this->response->withStatus(409);
         }
 
-        $filters = json_decode($this->request->getQueryParam('filters', '[]'), true);
-        $sort = json_decode($this->request->getQueryParam('sort'), true);
+        $filters = $this->request->getParam('filters', []);
+        $sort = $this->request->getParam('sort');
         if ($sort && isset($sort['field']) && isset($sort['direction'])) {
             $sort = new ApiSort($sort['field'], $sort['direction']);
         } else {
