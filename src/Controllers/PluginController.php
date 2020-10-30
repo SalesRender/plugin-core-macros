@@ -11,15 +11,16 @@ namespace Leadvertex\Plugin\Core\Macros\Controllers;
 use Lcobucci\JWT\Parser;
 use Leadvertex\Plugin\Components\ApiClient\ApiFilterSortPaginate;
 use Leadvertex\Plugin\Components\ApiClient\ApiSort;
+use Leadvertex\Plugin\Components\Batch\Batch;
+use Leadvertex\Plugin\Components\Batch\Exceptions\BatchException;
 use Leadvertex\Plugin\Components\Db\Components\Connector;
 use Leadvertex\Plugin\Components\Form\Form;
 use Leadvertex\Plugin\Components\Form\FormData;
 use Leadvertex\Plugin\Components\Registration\Registration;
 use Leadvertex\Plugin\Components\Process\Process;
+use Leadvertex\Plugin\Components\Token\GraphqlInputToken;
 use Leadvertex\Plugin\Components\Translations\Translator;
-use Leadvertex\Plugin\Core\Macros\Components\InputToken;
 use Leadvertex\Plugin\Core\Macros\Helpers\PathHelper;
-use Leadvertex\Plugin\Core\Macros\Models\Session;
 use Leadvertex\Plugin\Core\Macros\MacrosPlugin;
 use Ramsey\Uuid\Uuid;
 use Slim\Http\Response;
@@ -30,29 +31,24 @@ use XAKEPEHOK\Path\Path;
 class PluginController
 {
 
-    /**
-     * @var Request
-     */
+    /** @var Request */
     private $request;
-    /**
-     * @var Response
-     */
+
+    /** @var Response */
     private $response;
+
+    /** @var GraphqlInputToken */
+    private $token;
 
     public function __construct(Request $request, Response $response)
     {
         $this->request = $request;
         $this->response = $response;
 
-        $plugin = MacrosPlugin::getInstance();
-
-        Translator::config($plugin::getDefaultLanguage());
         $lang = $request->getHeader('Accept-Language')[0] ?? Translator::getDefaultLang();
         Translator::setLang(str_replace('-', '_',$lang));
 
-        if ($session = $this->loadSession()) {
-            $plugin->setSession($session);
-        }
+        $this->token = $this->loadToken();
     }
 
     public function info(): Response
@@ -81,7 +77,7 @@ class PluginController
 
     public function upload(): Response
     {
-        $registration = Session::current()->getRegistration();
+        $registration = $this->token->getRegistration();
 
         /** @var UploadedFile $file */
         $file = $this->request->getUploadedFiles()['file'] ?? null;
@@ -145,7 +141,7 @@ class PluginController
         );
     }
 
-    public function getSettings(): Response
+    public function getSettingsData(): Response
     {
         $form = MacrosPlugin::getInstance()->getSettingsForm();
 
@@ -153,10 +149,10 @@ class PluginController
             return $this->response->withStatus(404);
         }
 
-        return $this->response->withJson($form->getData());
+        return $this->response->withJson($this->token->getSettings()->getData());
     }
 
-    public function setSettings(): Response
+    public function setSettingsData(): Response
     {
         $form = MacrosPlugin::getInstance()->getSettingsForm();
         $data = new FormData($this->request->getParsedBody());
@@ -166,21 +162,46 @@ class PluginController
             return $response;
         }
 
-        $settings = Session::current()->getSettings();
+        $settings = $this->token->getSettings();
         $settings->setData($data);
         $settings->save();
 
         return $response;
     }
 
-    public function getRunForm(int $number): Response
+    public function batchPrepare(): Response
     {
-        return $this->getFormResponse($this->getRunFormObject($number));
+        $batch = Batch::findById($this->token->getId());
+        if ($batch) {
+            return $this->response->withStatus(409);
+        }
+
+        $filters = $this->request->getParam('filters', []);
+        $sort = $this->request->getParam('sort');
+        if ($sort && isset($sort['field']) && isset($sort['direction'])) {
+            $sort = new ApiSort($sort['field'], $sort['direction']);
+        } else {
+            $sort = null;
+        }
+
+        $batch = new Batch(
+            $this->token,
+            new ApiFilterSortPaginate($filters, $sort, 200),
+            Translator::getLang()
+        );
+        $batch->save();
+
+        return $this->response->withStatus(201);
     }
 
-    public function setRunOptions(int $number): Response
+    public function getBatchForm(int $number): Response
     {
-        $form = $this->getRunFormObject($number);
+        return $this->getFormResponse($this->getBatchFormObject($number));
+    }
+
+    public function setBatchData(int $number): Response
+    {
+        $form = $this->getBatchFormObject($number);
         if (is_null($form)) {
             return $this->getFormResponse($form);
         }
@@ -192,28 +213,23 @@ class PluginController
             return $response;
         }
 
-        $session = Session::current();
-
-        $session->setOptions($number, $data);
-
-        $session->save();
+        $batch = $this->getBatch();
+        $batch->setOptions($number, $data);
+        $batch->save();
 
         return $response;
     }
 
     public function run(): Response
     {
-        $session = Session::current();
-        $session->save();
-
-        $process = new Process($session->getId());
-
+        $process = new Process($this->token->getId());
         if ((int) $_ENV['LV_PLUGIN_DEBUG']) {
             $process->setState(Process::STATE_PROCESSING);
             $process->save();
 
             $plugin = MacrosPlugin::getInstance();
-            $plugin->run($process, $session->fsp);
+            $handler = $plugin->handler();
+            $handler($process, $this->getBatch());
         } else {
             $process->save();
         }
@@ -230,7 +246,7 @@ class PluginController
             return $this->response->withStatus(404);
         }
 
-        $session = Session::findById($this->request->getQueryParam('id'));
+        $session = Batch::findById($this->request->getQueryParam('id'));
 
         return $this->response->withJson([
             'plugin' => [
@@ -241,6 +257,19 @@ class PluginController
         ]);
     }
 
+    /**
+     * @return Batch
+     * @throws BatchException
+     */
+    private function getBatch(): Batch
+    {
+        $batch = Batch::findById($this->token->getId());
+        if (is_null($batch)) {
+            throw new BatchException("Batch was not init");
+        }
+        return $batch;
+    }
+
     private function getFormResponse(?Form $form): Response
     {
         if (is_null($form)) {
@@ -249,10 +278,10 @@ class PluginController
         return $this->response->withJson($form);
     }
 
-    private function getRunFormObject(int $number): ?Form
+    private function getBatchFormObject(int $number): ?Form
     {
         $plugin = MacrosPlugin::getInstance();
-        return $plugin->getRunForm($number);
+        return $plugin->getBatchForm($number);
     }
 
     private function setFormData(Form $form, FormData $data): Response
@@ -291,39 +320,16 @@ class PluginController
         ];
     }
 
-    private function loadSession(): ?Session
+    private function loadToken(): ?GraphqlInputToken
     {
-        $token = $this->request->getHeader('X-PLUGIN-TOKEN')[0] ?? '';
+        $jwt = $this->request->getHeader('X-PLUGIN-TOKEN')[0] ?? '';
 
-        if (empty($token)) {
+        if (empty($jwt)) {
             return null;
         }
 
-        $companyId = (new Parser())->parse($token)->getClaim('cid');
-        Connector::setCompanyId($companyId);
-
-        $token = new InputToken($token);
-
-        $session = Session::findById($token->getInputToken()->getClaim('jti'));
-        if (is_null($session)) {
-
-            $filters = json_decode($this->request->getQueryParam('filters', '[]'), true);
-
-            $sort = json_decode($this->request->getQueryParam('sort'), true);
-            if ($sort && isset($sort['field']) && isset($sort['direction'])) {
-                $sort = new ApiSort($sort['field'], $sort['direction']);
-            } else {
-                $sort = null;
-            }
-
-            $session = new Session(
-                $token,
-                new ApiFilterSortPaginate($filters, $sort, 200),
-                Translator::getLang()
-            );
-        }
-
-        Session::start($session);
-        return $session;
+        $token = new GraphqlInputToken($jwt);
+        Connector::setCompanyId($token->getCompanyId());
+        return $token;
     }
 }

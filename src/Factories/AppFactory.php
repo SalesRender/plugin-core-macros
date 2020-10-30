@@ -5,21 +5,23 @@ use Dotenv\Dotenv;
 
 use Dotenv\Repository\Adapter\EnvConstAdapter;
 use Dotenv\Repository\RepositoryBuilder;
+use Leadvertex\Plugin\Components\Batch\Commands\BackgroundCommand;
+use Leadvertex\Plugin\Components\Batch\Commands\QueueCommand;
 use Leadvertex\Plugin\Components\Db\Commands\CreateTableAutoCommand;
 use Leadvertex\Plugin\Components\Db\Commands\CreateTableManualCommand;
+use Leadvertex\Plugin\Components\Db\Commands\TableCleanerCommand;
+use Leadvertex\Plugin\Components\DirectoryCleaner\DirectoryCleanerCommand;
 use Leadvertex\Plugin\Components\Translations\Commands\LangAddCommand;
 use Leadvertex\Plugin\Components\Translations\Commands\LangUpdateCommand;
-use Leadvertex\Plugin\Core\Macros\Commands\BackgroundCommand;
-use Leadvertex\Plugin\Core\Macros\Commands\DbCleanerCommand;
-use Leadvertex\Plugin\Core\Macros\Commands\QueueCommand;
-use Leadvertex\Plugin\Core\Macros\Helpers\PathHelper;
-use Leadvertex\Plugin\Core\Macros\Commands\DirectoryCleanerCommand;
+use Leadvertex\Plugin\Components\Translations\Translator;
 use Leadvertex\Plugin\Core\Macros\Controllers\PluginController;
+use Leadvertex\Plugin\Core\Macros\MacrosPlugin;
 use Psr\Http\Server\RequestHandlerInterface;
 use Slim\App;
 use Slim\Http\Response;
 use Slim\Http\ServerRequest as Request;
 use Symfony\Component\Console\Application;
+use XAKEPEHOK\Path\Path;
 
 class AppFactory
 {
@@ -34,7 +36,7 @@ class AppFactory
 
         $_ENV['LV_PLUGIN_SELF_TYPE'] = 'MACROS';
 
-        $env = Dotenv::create($repository, (string) PathHelper::getRoot());
+        $env = Dotenv::create($repository, (string) Path::root());
         $env->load();
 
         $env->required('LV_PLUGIN_PHP_BINARY')->notEmpty();
@@ -46,6 +48,10 @@ class AppFactory
         $env->required('LV_PLUGIN_COMPONENT_REGISTRATION_HOSTNAME')->notEmpty();
 
         $_ENV['LV_PLUGIN_SELF_URI'] = rtrim($_ENV['LV_PLUGIN_SELF_URI'], '/') . '/';
+
+        $class = '\Leadvertex\Plugin\Instance\Macros\Plugin';
+        $lang = class_exists($class) ? call_user_func([$class, 'getDefaultLanguage']) : 'en_US';
+        Translator::config($lang);
     }
 
     public function web(): App
@@ -94,27 +100,32 @@ class AppFactory
             return $controller->getSettingsForm();
         });
 
-        $app->get("/forms/options/{number:[\d]+}", function (Request $request, Response $response, array $args) {
+        $app->get("/forms/batch/{number:[\d]+}", function (Request $request, Response $response, array $args) {
             $controller = new PluginController($request, $response);
-            return $controller->getRunForm($args['number']);
+            return $controller->getBatchForm($args['number']);
         });
 
         $app->get("/data/settings", function (Request $request, Response $response) {
             $controller = new PluginController($request, $response);
-            return $controller->getSettings();
+            return $controller->getSettingsData();
         });
 
         $app->put("/data/settings", function (Request $request, Response $response) {
             $controller = new PluginController($request, $response);
-            return $controller->setSettings();
+            return $controller->setSettingsData();
         });
 
-        $app->put("/data/options/{number:[\d]+}", function (Request $request, Response $response, array $args) {
+        $app->put("/data/batch/{number:[\d]+}", function (Request $request, Response $response, array $args) {
             $controller = new PluginController($request, $response);
-            return $controller->setRunOptions($args['number']);
+            return $controller->setBatchData($args['number']);
         });
 
-        $app->post("/run", function (Request $request, Response $response) {
+        $app->post("/batch/prepare", function (Request $request, Response $response) {
+            $controller = new PluginController($request, $response);
+            return $controller->batchPrepare();
+        });
+
+        $app->post("/batch/run", function (Request $request, Response $response) {
             $controller = new PluginController($request, $response);
             return $controller->run();
         });
@@ -140,14 +151,14 @@ class AppFactory
     {
         $app = new Application();
 
-        $app->add(new DirectoryCleanerCommand());
-        $app->add(new DbCleanerCommand());
+        $app->add(new QueueCommand('run'));
+        $app->add(new BackgroundCommand('run', MacrosPlugin::getInstance()->handler()));
 
-        $app->add(new QueueCommand());
-        $app->add(new BackgroundCommand());
+        $app->add(new DirectoryCleanerCommand());
 
         $app->add(new CreateTableAutoCommand());
         $app->add(new CreateTableManualCommand());
+        $app->add(new TableCleanerCommand());
 
         $app->add(new LangAddCommand());
         $app->add(new LangUpdateCommand());
