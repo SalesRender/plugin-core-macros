@@ -7,6 +7,7 @@
 namespace Leadvertex\Plugin\Core\Macros;
 
 
+use Leadvertex\Plugin\Components\Batch\BatchHandlerInterface;
 use Leadvertex\Plugin\Components\Developer\Developer;
 use Leadvertex\Plugin\Components\Purpose\PluginPurpose;
 use Leadvertex\Plugin\Components\Form\Form;
@@ -65,7 +66,11 @@ abstract class MacrosPlugin
      */
     abstract public function getBatchForm(int $number): ?Form;
 
-    abstract public function handler(): callable;
+    /**
+     * Batch operation handler (callable)
+     * @return BatchHandlerInterface
+     */
+    abstract public function handler(): BatchHandlerInterface;
 
     /**
      * @param string $name
