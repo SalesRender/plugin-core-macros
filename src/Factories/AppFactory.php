@@ -135,7 +135,7 @@ class AppFactory
             return $controller->process();
         });
 
-        $app->post("/robots.txt", function (Request $request, Response $response) {
+        $app->get("/robots.txt", function (Request $request, Response $response) {
             $response->getBody()->write("User-agent: *\nDisallow: /");
             return $response;
         });
