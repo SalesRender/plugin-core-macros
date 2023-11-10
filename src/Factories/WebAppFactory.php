@@ -5,12 +5,12 @@
  * @author Timur Kasumov (XAKEPEHOK)
  */
 
-namespace Leadvertex\Plugin\Core\Macros\Factories;
+namespace SalesRender\Plugin\Core\Macros\Factories;
 
 
 use Slim\App;
 
-class WebAppFactory extends \Leadvertex\Plugin\Core\Factories\WebAppFactory
+class WebAppFactory extends \SalesRender\Plugin\Core\Factories\WebAppFactory
 {
 
     public function build(): App
