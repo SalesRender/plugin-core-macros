@@ -18,7 +18,8 @@ class WebAppFactory extends \SalesRender\Plugin\Core\Factories\WebAppFactory
         $this
             ->addCors()
             ->addBatchActions()
-            ->addAutocompleteAction();
+            ->addAutocompleteAction()
+            ->addTablePreviewAction();
 
         return parent::build();
     }
