@@ -18,7 +18,7 @@
   "require": {
     "php": ">=7.4.0",
     "ext-json": "*",
-    "salesrender/plugin-core": "^0.4.0",
+    "salesrender/plugin-core": "^0.4.1",
     "salesrender/plugin-component-purpose": "^2.0"
   }
 }
